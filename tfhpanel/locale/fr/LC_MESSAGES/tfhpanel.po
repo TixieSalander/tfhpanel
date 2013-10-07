@@ -1,0 +1,96 @@
+# French translations for PROJECT.
+# Copyright (C) 2013 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-10-07 23:35+0200\n"
+"PO-Revision-Date: 2013-10-06 17:29+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: tfhpanel/templates/layout.mako:24 tfhpanel/templates/layout.mako:25
+msgid "Support"
+msgstr ""
+
+#: tfhpanel/templates/layout.mako:27 tfhpanel/templates/layout.mako:28
+msgid "Your Account"
+msgstr ""
+
+#: tfhpanel/templates/layout.mako:30 tfhpanel/templates/layout.mako:31
+#: tfhpanel/templates/user/layout.mako:8
+msgid "Logout"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:3
+msgid "Home"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:43
+msgid "Upgrade"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:49
+msgid "Support Tickets"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:52
+msgid "Subject"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:53
+msgid "Last message"
+msgstr ""
+
+#: tfhpanel/templates/user/home.mako:68
+msgid "More"
+msgstr ""
+
+#: tfhpanel/templates/user/layout.mako:7
+msgid "Settings"
+msgstr ""
+
+#: tfhpanel/templates/user/layout.mako:11
+msgid "Account"
+msgstr ""
+
+#: tfhpanel/templates/user/login.mako:11 tfhpanel/templates/user/login.mako:16
+msgid "Login"
+msgstr ""
+
+#: tfhpanel/templates/user/login.mako:14
+msgid "Username"
+msgstr ""
+
+#: tfhpanel/templates/user/login.mako:15
+msgid "Password"
+msgstr ""
+
+#: tfhpanel/templates/user/login.mako:19
+msgid "Forgot password?"
+msgstr ""
+
+#: tfhpanel/templates/user/login.mako:20
+msgid "Go back on Tux-FH.net"
+msgstr ""
+
+#: tfhpanel/views/user.py:38
+msgid "Logged in."
+msgstr ""
+
+#: tfhpanel/views/user.py:43
+msgid "Invalid username/password."
+msgstr ""
+
+#: tfhpanel/views/user.py:51
+msgid "Logged out."
+msgstr ""
+

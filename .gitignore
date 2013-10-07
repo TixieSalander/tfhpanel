@@ -1,0 +1,7 @@
+*.egg
+*.egg-info
+*.py[cod]
+*~
+.*.swp
+__pycache__
+*.mo
