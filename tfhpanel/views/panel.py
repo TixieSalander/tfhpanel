@@ -1,6 +1,6 @@
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest
+from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPInternalServerError
 from pyramid.renderers import render_to_response
 from collections import namedtuple
 
@@ -10,8 +10,6 @@ from tfhnode.forms import *
 import logging
 log = logging.getLogger(__name__)
 
-
-
 class PanelView(object):
     models = None
     form = None
@@ -20,11 +18,8 @@ class PanelView(object):
 
     @property
     @classmethod
-    def short_name(self):
-        if isinstance(self, type):
-            return self.__name__.lower()
-        else:
-            return self.__class__.__name__.lower()
+    def short_name(cls):
+        return cls.__name__.lower()
 
     def __init__(self, request):
         self.request = request
@@ -57,6 +52,27 @@ class PanelView(object):
             column = getattr(self.model, k)
             q = q.filter(column == v)
         return q
+
+    def make_url(self, o=None):
+        if o:
+            url = '/%s/%d' % (o.short_name, o.id)
+        else:
+            url = '/%s/' % self.model.short_name
+        parent = self.parent
+        while parent:
+            if o:
+                parent_name = parent.model.short_name
+                id = getattr(o, parent_name+'id')
+                url = '/%s/%d'%(parent_name, id) + url
+            else:
+                parent_name = parent.model.short_name
+                if not parent_name+'id' in self.filters:
+                    raise HTTPInternalServerError()
+                id = self.filters[parent_name+'id']
+                url = '/%s/%d'%(parent_name, id) + url
+
+            parent = parent.parent
+        return url
 
     def render(self, template, **kwargs):
         v = kwargs
