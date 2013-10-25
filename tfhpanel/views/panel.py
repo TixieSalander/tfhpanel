@@ -113,9 +113,30 @@ class PanelView(object):
             self.form.save(object)
             DBSession.commit()
             self.request.session.flash(('info', _('Saved!')))
+        # TODO: instead, send a See Other to get(). same in post_index()
         return self.render('view.mako', object=object)
 
-    # TODO: post_index
+    def post_index(self):
+        object = self.model()
+        # apply filter_query stuff
+        if hasattr(object, 'userid'):
+            object.userid = self.request.user.id
+        for k, v in self.filters.items():
+            if v is None or v == '':
+                continue
+            setattr(object, k, v)
+
+        errors = self.form.validate(self.request.POST)
+        if errors:
+            for error in errors:
+                self.request.session.flash(('error', error))
+        else:
+            self.form.save(object)
+            DBSession.add(object)
+            DBSession.commit()
+            self.request.session.flash(('info', _('Saved!')))
+        return self.render('view.mako', object=object)
+
 
     def __call__(self):
         get = self.request.method == 'GET'

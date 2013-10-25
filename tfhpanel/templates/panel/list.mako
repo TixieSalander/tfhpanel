@@ -12,3 +12,5 @@
     % endfor
 </table>
 
+${form.render() | n}
+

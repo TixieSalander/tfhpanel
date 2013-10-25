@@ -216,10 +216,10 @@ class Form(object):
         self._fields.sort(key=lambda o: o.creation_counter)
         self._clean_data = []
 
-    def render(self, dbobject=None):
+    def render(self, dbo=None):
         output = '<form action="%s" method="%s">\n' %(self._action, self._method)
         for field in self._fields:
-            output += field.render(getattr(dbobject, field.name))
+            output += field.render(getattr(dbo, field.name) if dbo else None)
         output += '<input type="submit" />\n'
         output += '</form>'
         return output
