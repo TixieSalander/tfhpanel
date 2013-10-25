@@ -129,7 +129,7 @@ class ForeignField(TextField):
         super().__init__(*args, **kwargs)
     
     def render(self, value):
-        return super().render(value.get_natural_key())
+        return super().render(value.get_natural_key() if value else '')
     
     def eval(self, value):
         if value.startswith('0x'):
@@ -260,4 +260,11 @@ class Form(object):
             if value is IgnoreValue:
                 continue
             setattr(to, field.name, value)
+    
+    def get_field(self, name):
+        for f in self._fields:
+            if f.name == name:
+                return f
+        return None
+
 

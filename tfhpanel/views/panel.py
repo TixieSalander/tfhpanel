@@ -230,6 +230,7 @@ class VHostErrorPagePanel(PanelView):
 
 
 root_panels = []
+root_panels_dict = {}
 
 for pv in PanelView.__subclasses__():
     if pv.parent and not pv.parent.subs:
@@ -238,5 +239,6 @@ for pv in PanelView.__subclasses__():
         pv.parent.subs.append(pv)
     else:
         root_panels.append(pv)
+        root_panels_dict[str(pv.model.short_name)] = pv
     del pv
 
