@@ -5,14 +5,17 @@ from pyramid.renderers import render_to_response
 from collections import namedtuple
 
 from tfhnode.models import *
-from tfhnode.forms import *
+from tfhpanel.forms import *
 
 import logging
 log = logging.getLogger(__name__)
 
+from pyramid.i18n import TranslationStringFactory
+_ = TranslationStringFactory('pyramid')
+
 class PanelView(object):
     models = None
-    form = None
+    formclass = None
     parent = None
     subs = []
 
@@ -76,7 +79,10 @@ class PanelView(object):
 
     def render(self, template, **kwargs):
         v = kwargs
-        v.update(dict(view=self))
+        v['view'] = self
+        act = self.request.route_url(self.request.matched_route.name,
+            **self.request.matchdict)
+        v['form'] = self.formclass(self.request, action=act)
         return render_to_response('panel/'+template,
             v, request=self.request)
 
@@ -106,79 +112,54 @@ class PanelView(object):
             self.post() if post else \
             HTTPBadRequest()
 
-@view_config(route_name='p_vhost', request_method=('GET', 'POST'), permission='vhost_panel')
+
+class VHostForm(Form):
+    name = TextField(_('Name'))
+    catchall = TextField(_('Fallback URI'))
+    autoindex = CheckboxField(_('Autoindex'))
+
+@view_config(route_name='p_vhost',  permission='vhost_panel')
 class VHostPanel(PanelView):
     model = VHost
-    form = (
-        FormField('VHost.name'),
-        ForeignField('Domain.userid', fk='user'),
-        # serverid
-        # update
-        FormField('VHost.catchall'),
-        FormField('VHost.autoindex'),
-        FormField('VHost.apptype'),
-        FormField('VHost.applocation'),
-    )
+    formclass = VHostForm
     list_fields = ('name', 'user')
 
-@view_config(route_name='p_domain', request_method=('GET', 'POST'), permission='domain_panel')
+class DomainForm(Form):
+    domain = TextField(_('Name'))
+    hostedns = CheckboxField(_('Hosted NS'))
+    vhost = ForeignField(fm=VHost)
+    public = CheckboxField(_('Public'))
+
+@view_config(route_name='p_domain',  permission='domain_panel')
 class DomainPanel(PanelView):
     model = Domain
-    form = (
-        ForeignField('Domain.userid', fk='user'),
-        FormField('Domain.domain'),
-        FormField('Domain.hostedns'),
-        FormField('Domain.public'),
-        ForeignField('Domain.vhostid', fk='vhost'),
-    )
+    formclass = None
     list_fields = ('user', 'domain', 'hostedns', 'public')
 
-@view_config(route_name='p_mailbox', request_method=('GET', 'POST'), permission='mail_panel')
+@view_config(route_name='p_mailbox',  permission='mail_panel')
 class MailboxPanel(PanelView):
     model = Mailbox
-    form = (
-        ForeignField('Mailbox.userid', fk='user'),
-        ForeignField('Mailbox.domainid', fk='domain'),
-        FormField('Mailbox.local_part', RegexpValidator('^[a-zA-Z0-9._-]{1,64}$'),
-            immutable=True),
-        FormFieldGroup('or',
-            FormField('Mailbox.redirect', RegexpValidator('^.+@.+$')),
-            PasswordField('Mailbox.password', StringValidator(max_len=256)),
-        ),
-    )
+    formclass = None
     list_fields = ('user', 'address')
 
-@view_config(route_name='p_vhostrewrite', request_method=('GET', 'POST'), permission='vhost_panel')
+@view_config(route_name='p_vhostrewrite',  permission='vhost_panel')
 class VHostRewritePanel(PanelView):
     model = VHostRewrite
-    form = (
-        FormField('VHostRewrite.regexp', StringValidator(1, 256)),
-        FormField('VHostRewrite.dest', StringValidator(1, 256)),
-        FormField('VHostRewrite.redirect_temp'),
-        FormField('VHostRewrite.redirect_perm'),
-        FormField('VHostRewrite.last'),
-    )
+    formclass = None
     parent = VHostPanel
     list_fields = ('regexp', 'dest')
 
-@view_config(route_name='p_vhostacl', request_method=('GET', 'POST'), permission='vhost_panel')
+@view_config(route_name='p_vhostacl',  permission='vhost_panel')
 class VHostACLPanel(PanelView):
     model = VHostACL
-    form = (
-        FormField('VHostACL.title', StringValidator(1, 256)),
-        FormField('VHostACL.regexp', StringValidator(1, 256)),
-        FormField('VHostACL.passwd', StringValidator(1, 256)),
-    )
+    formclass = None
     parent = VHostPanel
     list_fields = ('title', 'regexp')
    
-@view_config(route_name='p_vhostep', request_method=('GET', 'POST'), permission='vhost_panel')
+@view_config(route_name='p_vhostep',  permission='vhost_panel')
 class VHostErrorPagePanel(PanelView):
     model = VHostErrorPage
-    form = (
-        FormField('VHostErrorPage.code'),
-        FormField('VHostErrorPage.path', StringValidator(1, 256)),
-    )
+    formclass = None
     parent = VHostPanel
     list_fields = ('code', 'page')
 

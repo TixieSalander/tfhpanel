@@ -4,7 +4,7 @@ from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRe
 from pyramid.renderers import render_to_response
 
 from tfhnode.models import User
-from tfhnode.forms import *
+from tfhpanel.forms import *
 
 import logging
 log = logging.getLogger(__name__)
