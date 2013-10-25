@@ -28,9 +28,6 @@ class FormField(object):
         self.required = kwargs.get('required', True)
         self.type = kwargs.get('type', '')
         self.classes = kwargs.get('classes', [])
-       
-        #self.name = '%s_%s'%(self.dbmodel_name.lower(), self.dbfield)
-        #self.uid = 'f%s_%s'%(self.dbmodel_name.lower(), self.dbfield)
     
     def render_label(self):
         if self.label:
@@ -52,15 +49,6 @@ class FormField(object):
     def eval(self, input):
         raise NotImplementedError()
 
-    #def render(self, name, dbo=None):
-    #    return self.render_label(name) + self.render_input(name, dbo)
-
-    #def filter_input(self, input):
-    #    return input
-
-    #def filter_output(self, output):
-    #    return output
-
 class TextField(FormField):
     ''' Simple text input field '''
     def __init__(self, *args, **kwargs):
@@ -70,6 +58,15 @@ class TextField(FormField):
         return self.render_label() + self.render_input(str(value))
     def eval(self, value):
         return value
+
+class IntegerField(FormField):
+    def __init__(self, *args, **kwargs):
+        kwargs['type'] = 'text'
+        super().__init__(*args, **kwargs)
+    def render(self, value):
+        return self.render_label() + self.render_input(str(value))
+    def eval(self, value):
+        return int(value)
 
 class PasswordField(FormField):
     ''' Password field, crypt() input, dont output anything.
@@ -253,19 +250,4 @@ class Form(object):
             if v is IgnoreValue:
                 continue
             setattr(to, field.name, v)
-
-'''
-class LoginForm(Form):
-    username = FormField(_('Username'))
-    password = FormField(_('Password'))
-
-class MailboxForm(Form):
-    user = ForeignField(_('User'), fk='User.id')
-    domain = ForeignField(_('Domain'), fk='Domain.id')
-    local_part = FormField(_('Local part'))
-    FormFieldGroup(
-        password = PasswordField(_('Password')),
-        redirect = FormField(_('Redirect to'))
-    )
-'''
 

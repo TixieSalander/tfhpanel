@@ -124,42 +124,69 @@ class VHostPanel(PanelView):
     formclass = VHostForm
     list_fields = ('name', 'user')
 
+
 class DomainForm(Form):
     domain = TextField(_('Name'))
     hostedns = CheckboxField(_('Hosted NS'))
-    vhost = ForeignField(fm=VHost)
+    vhost = ForeignField(_('VHost'), fm=VHost)
     public = CheckboxField(_('Public'))
 
 @view_config(route_name='p_domain',  permission='domain_panel')
 class DomainPanel(PanelView):
     model = Domain
-    formclass = None
+    formclass = DomainForm
     list_fields = ('user', 'domain', 'hostedns', 'public')
+
+
+class MailboxForm(Form):
+    domain = ForeignField(_('Domain'), fm=Domain)
+    local_part = TextField(_('Local part'))
+    redirect = TextField(_('Redirect'))
+    password = PasswordField(_('Password'))
 
 @view_config(route_name='p_mailbox',  permission='mail_panel')
 class MailboxPanel(PanelView):
     model = Mailbox
-    formclass = None
+    formclass = MailboxForm
     list_fields = ('user', 'address')
+
+
+class VHostRewriteForm(Form):
+    regexp = TextField(_('RegExp'))
+    dest = TextField(_('Rewrite to'))
+    redirect_temp = CheckboxField(_('Temporary redirect (302)'))
+    redirect_perm = CheckboxField(_('Permanent redirect (301)'))
+    last = CheckboxField(_('Last'))
 
 @view_config(route_name='p_vhostrewrite',  permission='vhost_panel')
 class VHostRewritePanel(PanelView):
     model = VHostRewrite
-    formclass = None
+    formclass = VHostRewriteForm
     parent = VHostPanel
     list_fields = ('regexp', 'dest')
+
+
+class VHostACLForm(Form):
+    title = TextField(_('Title'))
+    regexp = TextField(_('RegExp'))
+    passwd = TextField(_('passwd file'))
 
 @view_config(route_name='p_vhostacl',  permission='vhost_panel')
 class VHostACLPanel(PanelView):
     model = VHostACL
-    formclass = None
+    formclass = VHostACLForm
     parent = VHostPanel
     list_fields = ('title', 'regexp')
-   
+
+
+class VHostErrorPageForm(Form):
+    code = IntegerField(_('Error code'))
+    path = TextField(_('Page URI'))
+
 @view_config(route_name='p_vhostep',  permission='vhost_panel')
 class VHostErrorPagePanel(PanelView):
     model = VHostErrorPage
-    formclass = None
+    formclass = VHostErrorPageForm
     parent = VHostPanel
     list_fields = ('code', 'page')
 
