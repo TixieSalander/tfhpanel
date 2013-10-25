@@ -55,7 +55,7 @@ class TextField(FormField):
         kwargs['type'] = 'text'
         super().__init__(*args, **kwargs)
     def render(self, value):
-        return self.render_label() + self.render_input(str(value))
+        return self.render_label() + self.render_input(str(value or ''))
     def eval(self, value):
         return value
 
@@ -64,6 +64,8 @@ class IntegerField(FormField):
         kwargs['type'] = 'text'
         super().__init__(*args, **kwargs)
     def render(self, value):
+        if value is None:
+            value = ''
         return self.render_label() + self.render_input(str(value))
     def eval(self, value):
         return int(value)
@@ -213,7 +215,7 @@ class Form(object):
     def render(self, dbobject=None):
         output = '<form action="%s" method="%s">\n' %(self.action, self.method)
         for field in self.fields:
-            output += field.render(dbobject)
+            output += field.render(getattr(dbobject, field.name))
         output += '<input type="submit" />\n'
         output += '</form>'
         return output
