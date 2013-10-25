@@ -11,6 +11,9 @@ log = logging.getLogger(__name__)
 
 from pyramid.view import forbidden_view_config
 
+from pyramid.i18n import TranslationStringFactory
+_ = TranslationStringFactory('pyramid')
+
 @forbidden_view_config()
 def forbidden_view(request):
     if not request.user:
@@ -54,6 +57,26 @@ def user_logout(request):
 @view_config(route_name='user_home', permission='user', renderer='user/home.mako')
 def user_home(request):
     return {'user':request.user}
+
+class UserSettingsForm(Form):
+    username = TextField(_('Username'))
+    password = PasswordField(_('Password'))
+    email = TextField(_('E-Mail'))
+
+@view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
+def user_settings(request):
+    form = UserSettingsForm(request, request.route_url('user_settings'))
+    object = request.user
+    if request.method == 'POST':
+        errors = form.validate(request.POST)
+        if errors:
+            for error in errors:
+                request.session.flash(('error', error))
+        else:
+            form.save(object)
+            DBSession.commit()
+            request.session.flash(('info', _('Saved!')))
+    return dict(form=form, object=object)
 
 
 '''
