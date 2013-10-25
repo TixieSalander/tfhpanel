@@ -29,6 +29,9 @@ class PanelView(object):
         self.filters = {}
         for k, v in self.request.matchdict.items():
             self.filters[k] = int(v, 16) if v else None
+        act = self.request.route_url(self.request.matched_route.name,
+            **self.request.matchdict)
+        self.form = self.formclass(self.request, action=act)
     
     def find_required_uid(self):
         view = self
@@ -80,9 +83,7 @@ class PanelView(object):
     def render(self, template, **kwargs):
         v = kwargs
         v['view'] = self
-        act = self.request.route_url(self.request.matched_route.name,
-            **self.request.matchdict)
-        v['form'] = self.formclass(self.request, action=act)
+        v['form'] = self.form
         return render_to_response('panel/'+template,
             v, request=self.request)
 
@@ -98,7 +99,23 @@ class PanelView(object):
             raise HTTPNotFound(comment='object not found')
         return self.render('view.mako', object=object)
     
-    # TODO: post/post_index
+    def post(self):
+        object = DBSession.query(self.model)
+        object = self.filter_query(object).first()
+        if not object:
+            raise HTTPNotFound(comment='object not found')
+        
+        errors = self.form.validate(self.request.POST)
+        if errors:
+            for error in errors:
+                self.request.session.flash(('error', error))
+        else:
+            self.form.save(object)
+            DBSession.commit()
+            self.request.session.flash(('info', _('Saved!')))
+        return self.render('view.mako', object=object)
+
+    # TODO: post_index
 
     def __call__(self):
         get = self.request.method == 'GET'

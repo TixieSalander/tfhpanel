@@ -13,6 +13,9 @@ class IgnoreValue(object):
 def escape_input(value):
     return cgi.escape(value)
 
+class ValidationError(Exception):
+    def __init__(self, message):
+        self.message = message
 
 class FormField(object):
     creation_counter = 0
@@ -191,11 +194,11 @@ class RegexpValidator(Validator):
 
 class Form(object):
     def __init__(self, request, action, *args, **kwargs):
-        self.request = request
-        self.fields = []
-        self.action = action
+        self._request = request
+        self._fields = []
+        self._action = action
 
-        self.method = kwargs.get('method', 'POST')
+        self._method = kwargs.get('method', 'POST')
 
         # 'VHostForm' -> 'vhost'
         formname = self.__class__.__name__.lower().replace('form', '')
@@ -205,16 +208,17 @@ class Form(object):
                 continue
             obj.name = name
             obj.uid = formname + '_' + name
-            self.fields.append(obj)
+            self._fields.append(obj)
             # Remove fields in instances
             setattr(self, name, None)
 
-        self.name = formname
-        self.fields.sort(key=lambda o: o.creation_counter)
+        self._name = formname
+        self._fields.sort(key=lambda o: o.creation_counter)
+        self._clean_data = []
 
     def render(self, dbobject=None):
-        output = '<form action="%s" method="%s">\n' %(self.action, self.method)
-        for field in self.fields:
+        output = '<form action="%s" method="%s">\n' %(self._action, self._method)
+        for field in self._fields:
             output += field.render(getattr(dbobject, field.name))
         output += '<input type="submit" />\n'
         output += '</form>'
@@ -222,34 +226,38 @@ class Form(object):
 
     def validate(self, data):
         errors = []
-        for field in self.fields:
-            if field not in data:
+        for field in self._fields:
+            if field.readonly:
+                continue
+            
+            key = self._name + '_' + field.name
+            if key not in data:
                 if field.required:
                     return False
                 in_value = None
             else:
-                in_value = data[field.name]
+                in_value = data[key]
             
             if field.validator and not field.validator(in_value):
                 errors.append(_('Invalid field: %s') % field.label or field.name)
                 continue
             
             try:
-                value = field.handle_input(input_value)
-                setattr(self, name, value)
+                value = field.eval(in_value)
+                setattr(self, field.name, value)
+                self._clean_data.append((field, value))
             except ValidationError as e:
                 errors.append(e.message)
                 continue
         return errors
 
     def save(self, to):
-        for field in self.fields:
+        for field, value in self._clean_data:
             if field.readonly:
                 continue
             if to.id and field.immutable:
                 continue
-            v = getattr(self, field.name)
-            if v is IgnoreValue:
+            if value is IgnoreValue:
                 continue
-            setattr(to, field.name, v)
+            setattr(to, field.name, value)
 
