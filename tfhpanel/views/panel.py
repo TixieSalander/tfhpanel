@@ -156,6 +156,7 @@ class VHostForm(Form):
     name = TextField(_('Name'))
     catchall = TextField(_('Fallback URI'))
     autoindex = CheckboxField(_('Autoindex'))
+    domains = OneToManyField(_('Domains'))
 
 @view_config(route_name='p_vhost',  permission='vhost_panel')
 class VHostPanel(PanelView):

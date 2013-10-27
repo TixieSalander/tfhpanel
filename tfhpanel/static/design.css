@@ -364,6 +364,9 @@ body#loginform{
     text-decoration: underline;
 }
 
+input[type=text], input[type=password], input[type=submit] {
+    display: block;
+}
 
 /* FONTS */
 

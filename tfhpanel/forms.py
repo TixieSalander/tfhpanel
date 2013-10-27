@@ -162,6 +162,18 @@ class ForeignField(TextField):
             raise ValidationError(_('Cannot find foreign object.'))
         return obj
 
+class OneToManyField(TextField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    def render(self, value):
+        if value:
+            output = ', '.join([v.get_natural_key() for v in value])
+        else:
+            output = ''
+        return super().render(output)
+    def eval(self, value):
+        # TODO
+        pass
 
 class FormFieldGroup(object):
     def __init__(self, type, *fields):
