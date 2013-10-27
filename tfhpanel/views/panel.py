@@ -89,19 +89,19 @@ class PanelView(object):
             v, request=self.request)
 
     def get_index(self):
-        objects = DBSession.query(self.model).options(joinedload('user'))
+        objects = DBSession.query(self.model).options(joinedload('*'))
         objects = self.filter_query(objects).order_by(self.model.id).all()
         return self.render('list.mako', objects=objects)
 
     def get(self):
-        object = DBSession.query(self.model).options(joinedload('user'))
+        object = DBSession.query(self.model).options(joinedload('*'))
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
         return self.render('view.mako', object=object)
     
     def post(self):
-        object = DBSession.query(self.model).options(joinedload('user'))
+        object = DBSession.query(self.model).options(joinedload('*'))
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
