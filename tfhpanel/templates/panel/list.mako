@@ -25,9 +25,14 @@
                 <b>${object.get_natural_key()}</b>
             </a></td>
             % for f in view.list_fields:
-                <td><a href="${view.make_url(object)}">
-                    ${getattr(object, f)}
-                </a></td>
+                <% value = getattr(object, f) %>
+                % if value:
+                    <td><a href="${view.make_url(object)}">
+                        ${getattr(object, f) or ''}
+                    </a></td>
+                % else:
+                    <td>None</td>
+                % endif
             % endfor
         </tr>
     % endfor
