@@ -1,5 +1,6 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
+from sqlalchemy.orm import joinedload
 from pyramid_beaker import session_factory_from_settings
 from pyramid.authorization import ACLAuthorizationPolicy
 from tfhnode.models import Base, DBSession, User, Group
@@ -11,7 +12,9 @@ def get_user(request):
         return None
 
     uid = request.session['uid']
-    user = DBSession.query(User).filter_by(id=uid).first()
+    user = DBSession.query(User) \
+        .options(joinedload('groups')) \
+        .filter_by(id=uid).first()
     if not user:
         # Delete bad session
         del request.session['uid']

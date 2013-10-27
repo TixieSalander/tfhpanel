@@ -3,6 +3,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPInternalServerError
 from pyramid.renderers import render_to_response
 from collections import namedtuple
+from sqlalchemy.orm import joinedload
 
 from tfhnode.models import *
 from tfhpanel.forms import *
@@ -88,19 +89,19 @@ class PanelView(object):
             v, request=self.request)
 
     def get_index(self):
-        objects = DBSession.query(self.model)
+        objects = DBSession.query(self.model).options(joinedload('user'))
         objects = self.filter_query(objects).order_by(self.model.id).all()
         return self.render('list.mako', objects=objects)
 
     def get(self):
-        object = DBSession.query(self.model)
+        object = DBSession.query(self.model).options(joinedload('user'))
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
         return self.render('view.mako', object=object)
     
     def post(self):
-        object = DBSession.query(self.model)
+        object = DBSession.query(self.model).options(joinedload('user'))
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
