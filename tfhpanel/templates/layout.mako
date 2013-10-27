@@ -9,7 +9,7 @@
 <body>
     <header>
         <div id="logo">
-            <h1>TuxPanel</h1>
+            <h1><a href="/">TuxPanel</a></h1>
         </div>
         <nav>
             <ul>
