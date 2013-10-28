@@ -160,19 +160,22 @@ class PanelView(object):
             self.post() if post else \
             HTTPBadRequest()
 
+def filter_owned_domain(field, query, request):
+    return query.filter_by(userid = request.user.id)
+
 
 class VHostForm(Form):
     name = TextField(_('Name'))
     catchall = TextField(_('Fallback URI'))
     autoindex = CheckboxField(_('Autoindex'))
-    domains = OneToManyField(_('Domains'))
+    domains = OneToManyField(_('Domains'), fm=Domain,
+        qf=[filter_owned_domain])
 
 @view_config(route_name='p_vhost',  permission='vhost_panel')
 class VHostPanel(PanelView):
     model = VHost
     formclass = VHostForm
     list_fields = ('name', 'user')
-
 
 class DomainForm(Form):
     domain = TextField(_('Name'))

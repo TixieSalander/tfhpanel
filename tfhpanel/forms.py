@@ -49,7 +49,7 @@ class FormField(object):
     def render(self, value):
         raise NotImplementedError()
 
-    def eval(self, input):
+    def eval(self, input, request):
         raise NotImplementedError()
 
 class TextField(FormField):
@@ -59,7 +59,7 @@ class TextField(FormField):
         super().__init__(*args, **kwargs)
     def render(self, value):
         return self.render_label() + self.render_input(str(value or ''))
-    def eval(self, value):
+    def eval(self, value, request):
         return value
 
 class IntegerField(FormField):
@@ -70,7 +70,7 @@ class IntegerField(FormField):
         if value is None:
             value = ''
         return self.render_label() + self.render_input(str(value))
-    def eval(self, value):
+    def eval(self, value, request):
         return int(value)
 
 class PasswordField(FormField):
@@ -85,7 +85,7 @@ class PasswordField(FormField):
     def render(self, value):
         return self.render_label() + self.render_input('')
     
-    def eval(self, value):
+    def eval(self, value, request):
         if not value:
             return IgnoreValue()
         return crypt.crypt(value)
@@ -111,7 +111,7 @@ class CheckboxField(FormField):
         output += self.render_label()
         return output
     
-    def eval(self, value):
+    def eval(self, value, request):
         return value == '1'
 
 class ForeignField(TextField):
@@ -124,6 +124,7 @@ class ForeignField(TextField):
 
     def __init__(self, *args, **kwargs):
         self.foreign_model = kwargs.get('fm')
+        self.query_filters = kwargs.get('qf', [])
         if isinstance(self.foreign_model, str):
             self.foreign_model = eval(self.foreign_model)
         super().__init__(*args, **kwargs)
@@ -131,18 +132,23 @@ class ForeignField(TextField):
     def render(self, value):
         return super().render(value.get_natural_key() if value else '')
     
-    def eval(self, value):
+    def filter_query(self, query, request):
+        for qf in self.query_filters:
+            query = qf(self, query, request)
+        return query
+
+    def eval(self, value, request):
         if value.startswith('0x'):
             id = int(value[2:].split(' ', 1)[0], 16)
-            obj = DBSession.query(self.foreign_model) \
-                .filter_by(id=id).first()
+            obj = DBSession.query(self.foreign_model).filter_by(id=id)
+            obj = self.filter_query(obj, request).first()
             if obj:
                 return obj
             
         if value.startswith('#'):
             id = int(value[1:].split(' ', 1)[0])
-            obj = DBSession.query(self.foreign_model) \
-                .filter_by(id=id).first()
+            obj = DBSession.query(self.foreign_model).filter_by(id=id)
+            obj = self.filter_query(obj, request).first()
             if obj:
                 return obj
 
@@ -154,18 +160,19 @@ class ForeignField(TextField):
 
         if not hasattr(self.foreign_model, 'natural_key'):
             # No natural key, can only be selected by id.
-            return None
+            raise ValidationError(_('Cannot search for these objects.'))
 
         obj = DBSession.query(self.foreign_model) \
             .filter( \
                 getattr(self.foreign_model, self.foreign_model.natural_key) \
                 == value \
-            ).first()
+            )
+        obj = self.filter_query(obj, request).first()
         if not obj:
             raise ValidationError(_('Cannot find foreign object.'))
         return obj
 
-class OneToManyField(TextField):
+class OneToManyField(ForeignField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     def render(self, value):
@@ -173,10 +180,17 @@ class OneToManyField(TextField):
             output = ', '.join([v.get_natural_key() for v in value])
         else:
             output = ''
-        return super().render(output)
-    def eval(self, value):
-        # TODO
-        pass
+        return TextField.render(self, output)
+    def eval(self, value, request):
+        values = value.split(',')
+        objects = []
+        for item in values:
+            item = item.strip()
+            v = super().eval(item, request)
+            if v:
+                objects.append(v)
+        return objects
+        
 
 class FormFieldGroup(object):
     def __init__(self, type, *fields):
@@ -258,7 +272,7 @@ class Form(object):
                 continue
             
             try:
-                value = field.eval(in_value)
+                value = field.eval(in_value, request=self._request)
                 setattr(self, field.name, value)
                 self._clean_data.append((field, value))
             except ValidationError as e:
