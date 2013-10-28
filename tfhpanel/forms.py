@@ -42,6 +42,8 @@ class FormField(object):
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
+        if self.readonly or self.immutable and value:
+            output += 'readonly="readonly" '
         output += 'value="%s" ' % escape_input(value) if value else ''
         output += '/>\n'
         return output
@@ -105,6 +107,8 @@ class CheckboxField(FormField):
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
+        if self.readonly or self.immutable and value:
+            output += 'readonly="readonly" '
         output += 'value="1" '
         output += 'checked="%s" ' % 'checked' if value else ''
         output += '/>\n'
@@ -248,6 +252,9 @@ class Form(object):
     def render(self, dbo=None):
         output = '<form action="%s" method="%s">\n' %(self._action, self._method)
         for field in self._fields:
+            if not dbo and field.readonly:
+                # Do not show readonly field in add form
+                continue
             output += field.render(getattr(dbo, field.name) if dbo else None)
         output += '<input type="submit" />\n'
         output += '</form>'
