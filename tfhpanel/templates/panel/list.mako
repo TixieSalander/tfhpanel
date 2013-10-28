@@ -22,7 +22,7 @@
     % for object in objects:
         <tr>
             <td><a href="${view.make_url(object)}">
-                <b>${object.get_natural_key()}</b>
+                <b>#${object.id} ${object.get_natural_key()}</b>
             </a></td>
             % for f in view.list_fields:
                 <% value = getattr(object, f) %>
@@ -32,8 +32,8 @@
                             ${value.get_natural_key()}
                         </span>
                     </a></td>
-                % elif value:
-                    <td><span class="panel-value">${value or ''}</span></td>
+                % elif value is not None:
+                    <td><span class="panel-value">${value}</span></td>
                 % else:
                     <td>None</td>
                 % endif

@@ -387,6 +387,10 @@ input[type=text], input[type=password], input[type=submit] {
 .m-error { color: darkred; }
 
 
+.panel-value {
+    font-family: monospace;
+}
+
 
 /* FONTS */
 
