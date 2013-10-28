@@ -90,26 +90,31 @@ class PanelView(object):
             parent = parent.parent
         return url
 
-    def render(self, template, **kwargs):
-        v = kwargs
+    def render(self, template, v):
         v['view'] = self
         v['form'] = self.form
         return render_to_response('panel/'+template,
             v, request=self.request)
-
-    def get_index(self):
+    
+    def get_index_data(self):
         objects = DBSession.query(self.model).options(joinedload('*'))
         objects = self.filter_query(objects).order_by(self.model.id).all()
-        return self.render('list.mako', objects=objects)
+        return dict(objects=objects)
 
-    def get(self):
+    def get_index(self):
+        return self.render('list.mako', self.get_index_data())
+
+    def get_data(self):
         object = DBSession.query(self.model).options(joinedload('*'))
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
-        return self.render('view.mako', object=object)
+        return dict(object=object)
+
+    def get(self):
+        return self.render('view.mako', self.get_data())
     
-    def post(self):
+    def post_data(self):
         object = DBSession.query(self.model).options(joinedload('*'))
         object = self.filter_query(object).first()
         if not object:
@@ -123,10 +128,13 @@ class PanelView(object):
             self.form.save(object)
             DBSession.commit()
             self.request.session.flash(('info', _('Saved!')))
-        # TODO: instead, send a See Other to get(). same in post_index()
-        return self.render('view.mako', object=object)
+        return dict(object=object)
 
-    def post_index(self):
+    def post(self):
+        # TODO: instead, send a See Other to get(). same in post_index()
+        return self.render('view.mako', self.post_data())
+
+    def post_index_data(self):
         object = self.model()
         # apply filter_query stuff
         if hasattr(object, 'userid'):
@@ -145,7 +153,10 @@ class PanelView(object):
             DBSession.add(object)
             DBSession.commit()
             self.request.session.flash(('info', _('Saved!')))
-        return self.render('view.mako', object=object)
+        return dict(object=object)
+
+    def post_index(self):
+        return self.render('view.mako', self.post_index_data())
 
 
     def __call__(self):
@@ -177,18 +188,24 @@ class VHostPanel(PanelView):
     formclass = VHostForm
     list_fields = ('name', 'user')
 
+
 class DomainForm(Form):
     domain = TextField(_('Name'))
     hostedns = CheckboxField(_('Hosted NS'))
     vhost = ForeignField(_('VHost'), fm=VHost)
     public = CheckboxField(_('Public'))
+    verified = CheckboxField(_('Verified'), readonly=True)
 
 @view_config(route_name='p_domain',  permission='domain_panel')
 class DomainPanel(PanelView):
     model = Domain
     formclass = DomainForm
-    list_fields = ('user', 'domain', 'hostedns', 'public')
-
+    list_fields = ('user', 'domain', 'hostedns', 'public', 'verified')
+    
+    def get_data(self):
+        d = super().get_data()
+        d['left_template'] = 'domain/view_status.mako'
+        return d
 
 class MailboxForm(Form):
     domain = ForeignField(_('Domain'), fm=Domain)
