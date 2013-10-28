@@ -59,6 +59,15 @@ class PanelView(object):
             column = getattr(self.model, k)
             q = q.filter(column == v)
         return q
+    
+    def is_model_object(self, o=None):
+        if not o:
+            return True
+        try:
+            if o.short_name and o.id:
+                return True
+        except Exception as e:
+            return False
 
     def make_url(self, o=None):
         if o:
@@ -181,8 +190,8 @@ class DomainPanel(PanelView):
 class MailboxForm(Form):
     domain = ForeignField(_('Domain'), fm=Domain)
     local_part = TextField(_('Local part'))
-    redirect = TextField(_('Redirect'))
-    password = PasswordField(_('Password'))
+    redirect = TextField(_('Redirect (if any)'))
+    password = PasswordField(_('Password (required to accept mails)'))
 
 @view_config(route_name='p_mailbox',  permission='mail_panel')
 class MailboxPanel(PanelView):

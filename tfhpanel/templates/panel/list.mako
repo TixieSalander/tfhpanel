@@ -26,10 +26,14 @@
             </a></td>
             % for f in view.list_fields:
                 <% value = getattr(object, f) %>
-                % if value:
-                    <td><a href="${view.make_url(object)}">
-                        ${getattr(object, f) or ''}
+                % if value and view.is_model_object(value):
+                    <td><a class="panel-value" href="${view.make_url(value)}">
+                        #${value.id} <span class="panel-value">
+                            ${value.get_natural_key()}
+                        </span>
                     </a></td>
+                % elif value:
+                    <td><span class="panel-value">${value or ''}</span></td>
                 % else:
                     <td>None</td>
                 % endif
