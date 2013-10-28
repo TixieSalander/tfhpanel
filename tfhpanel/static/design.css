@@ -159,10 +159,9 @@ section{
     padding: 0.3em;
     border-bottom: 1px solid #5a5a5a;
 }
-.left50, .right50{
+.right50, .right50 + .left50{
     width: 49%;
     margin: 0px;
-    
 }
 .left50{
     float: left;
