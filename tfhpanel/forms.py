@@ -133,7 +133,7 @@ class ForeignField(TextField):
     
     def eval(self, value):
         if value.startswith('0x'):
-            id = int(value[1:].split(' ', 1)[0], 16)
+            id = int(value[2:].split(' ', 1)[0], 16)
             obj = DBSession.query(self.foreign_model) \
                 .filter_by(id=id).first()
             if obj:
@@ -152,12 +152,15 @@ class ForeignField(TextField):
         if value == '':
             return None
 
-        if not hasattr(foreign_model, 'natural_key'):
+        if not hasattr(self.foreign_model, 'natural_key'):
             # No natural key, can only be selected by id.
             return None
 
         obj = DBSession.query(self.foreign_model) \
-            .filter(getattr(self.foreign_model, foreign_model.natural_key) == value).first()
+            .filter( \
+                getattr(self.foreign_model, self.foreign_model.natural_key) \
+                == value \
+            ).first()
         if not obj:
             raise ValidationError(_('Cannot find foreign object.'))
         return obj
