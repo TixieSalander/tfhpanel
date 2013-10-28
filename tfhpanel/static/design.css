@@ -368,6 +368,26 @@ input[type=text], input[type=password], input[type=submit] {
     display: block;
 }
 
+/* Messages */
+.message {
+    border: 1px solid black;
+    padding: 5px;
+    margin: 10px 0 10px 0;
+    text-align: center;
+}
+.loginmessage {
+    border: 1px solid black;
+    border-radius: 3px;
+    padding: 10px;
+    margin: 0 0 20px 0;
+    color: black;
+    text-align: center;
+}
+.m-info {}
+.m-error { color: darkred; }
+
+
+
 /* FONTS */
 
 @font-face {
@@ -421,7 +441,7 @@ input[type=text], input[type=password], input[type=submit] {
 @font-face {
     font-family: 'Open Sans';
     src: url('/static/fonts/OpenSans-Light-webfont.eot');
-    src: url('/static/fonts/OpenSans-Light-webfont.eot?#iefix') format('embedded-opentype'),
+    .src: url('/static/fonts/OpenSans-Light-webfont.eot?#iefix') format('embedded-opentype'),
          url('/static/fonts/OpenSans-Light-webfont.woff') format('woff'),
          url('/static/fonts/OpenSans-Light-webfont.ttf') format('truetype'),
          url('/static/fonts/OpenSans-Light-webfont.svg#OpenSansLight') format('svg');

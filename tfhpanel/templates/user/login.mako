@@ -9,6 +9,11 @@
 <body id="loginform">
     <div class="loginform">
         <h1>${_('Login')}</h1>
+        
+        % for m in request.session.pop_flash():
+            <p class="loginmessage m_${m[0]}">${m[1]}</p>
+        % endfor
+        
         <div class="form">
             <form method="post" action="/user/login" name="loginform">
                 <input type="text" name="username" placeholder="${_('Username')}" />

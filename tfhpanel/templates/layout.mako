@@ -42,7 +42,7 @@
             <div class="content">
                 <div id="messages">
                     % for m in request.session.pop_flash():
-                        <p>${m}</p>
+                        <p class="message m_${m[0]}">${m[1]}</p>
                     % endfor
                 </div>
                 ${self.body()}
