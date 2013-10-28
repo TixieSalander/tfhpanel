@@ -200,7 +200,7 @@ class DomainForm(Form):
 class DomainPanel(PanelView):
     model = Domain
     formclass = DomainForm
-    list_fields = ('user', 'domain', 'hostedns', 'public', 'verified')
+    list_fields = ('user', 'domain', 'vhost', 'hostedns', 'public', 'verified')
     
     def get_data(self):
         d = super().get_data()
