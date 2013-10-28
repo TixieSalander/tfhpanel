@@ -22,7 +22,7 @@
     % for object in objects:
         <tr>
             <td><a href="${view.make_url(object)}">
-                <b>#${object.id} ${object.get_natural_key()}</b>
+                <b>#${object.id} ${object.get_natural_key() if object.natural_key else ''}</b>
             </a></td>
             % for f in view.list_fields:
                 <% value = getattr(object, f) %>
