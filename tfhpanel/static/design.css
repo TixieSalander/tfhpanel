@@ -1,7 +1,7 @@
 body{
     margin: 0 auto;
     color: #5a5a5a;
-    font-family: "Open Sans", Arial, sans-serif;
+    font-family: Helvetica, "Deja Vu Sans", Arial, sans-serif;
     font-weight: normal;
 }
 html, body{
@@ -147,7 +147,8 @@ section{
     display: table-cell;
     width: 80%;
     padding: 2%;
-    font-size: 1.2em;
+    font-size: 1em;
+    line-height: 1.1em;
     background: #f2f2f2;
 }
 
@@ -192,7 +193,7 @@ section{
 }
 .content table tbody{
     width: 100%;
-    font-size: 0.8em;
+    font-size: 0.9em;
 }
 .content table tr{
     width: 100%;
@@ -390,6 +391,9 @@ input[type=text], input[type=password], input[type=submit] {
     font-family: monospace;
 }
 
+h1, h2, h3, h4, h5{
+    font-family: 'Open Sans';
+}
 
 /* FONTS */
 
