@@ -17,18 +17,24 @@
                     <li>
                         <a href="/${panel.model.short_name}/">
                             <img src="/static/images/nav/${panel.model.short_name}.png"
-                                alt="${panel.model.display_name}" />
+                                alt="${panel.model.display_name}" /><br/>
+                            ${panel.model.display_name}
                         </a>
                     </li>
                 % endfor
                 <li><a href="/support/" title="${_('Support')}">
-                    <img src="/static/images/nav/support.png" alt="${_('Support')}"/></a>
+                        <img src="/static/images/nav/support.png" alt="${_('Support')}"/><br/>
+                        ${_('Support')}  
+                    </a>
                 </li>
                 <li><a href="/user/" title="${_('Your Account')}">
-                    <img src="/static/images/nav/user.png" alt="${_('Your Account')}"/></a>
+                        <img src="/static/images/nav/user.png" alt="${_('Your Account')}"/><br/>
+                        ${_('Your Account')}  
+                    </a>
                 </li>
                 <li><a href="/user/logout" title="${_('Logout')}" class="navlogout">
-                    <img src="/static/images/nav/logout.png" alt="${_('Logout')}"/></a>
+                        <img src="/static/images/nav/logout.png" alt="${_('Logout')}"/>
+                    </a>
                 </li>
             </ul>
         </nav>

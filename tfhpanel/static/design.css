@@ -14,22 +14,22 @@ header{
     color: #fff;
     background: #1a1a1a;
     text-align: right;
-    background: url(/static/images/bg.png);
-    -webkit-box-shadow:  0px -1px 5px 0px #000000;
-    box-shadow:  0px -1px 5px 0px #000000;
+    background: #fff;
+    -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
 }
 header a{
-    color: #fff;
+    color: #5a5a5a;
     text-decoration: none;
 }
 header #logo{
     float: left;
-    height: 58px;
+    height: 62px;
     line-height: 55px;
     margin-left: 2%;
 }
 header #logo h1{
-    margin: 0px;
+    margin: 3px 0px;
     font-size: 2em;
     font-weight: lighter;
     text-transform: uppercase;
@@ -46,6 +46,8 @@ header nav li{
     display: inline;
     margin: 0px;
     padding: 0px;
+    text-align: center;
+    font-size: 0.9em;
 }
 header nav a{
     display: inline-block;
@@ -54,19 +56,24 @@ header nav a{
     opacity: 0.7;
 }
 header nav a:hover, header nav a.current{
-    background: #2e2e2e;
+    background: #eee;
     opacity: 1;
 }
 header nav a.navlogout{
-    background: #e64243;
+    background: #d42222;
     opacity: 1;
 }
 header nav a.navlogout:hover{
-    background: #d83e3f;
+    background: #c72a2a;
 }
 header nav img{
+    height: 30px;
+    width: 30px;
+}
+header nav a.navlogout img{
     height: 40px;
     width: 40px;
+    margin: 0.15em 0;
 }
 .wrap{
     display: table;
@@ -149,7 +156,7 @@ section{
     padding: 2%;
     font-size: 1em;
     line-height: 1.1em;
-    background: #f2f2f2;
+    background: #f7f7f7;
 }
 
  /* CONTENT */
