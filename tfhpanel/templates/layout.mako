@@ -13,7 +13,7 @@
         </div>
         <nav>
             <ul>
-                % for panel in utils.get_root_panels():
+                % for short_name, panel in utils.get_root_panels().items():
                     <li>
                         <a href="/${panel.model.short_name}/">
                             <img src="/static/images/nav/${panel.model.short_name}.png"
@@ -24,12 +24,12 @@
                 % endfor
                 <li><a href="/support/" title="${_('Support')}">
                         <img src="/static/images/nav/support.png" alt="${_('Support')}"/><br/>
-                        ${_('Support')}  
+                        ${_('Support')}
                     </a>
                 </li>
                 <li><a href="/user/" title="${_('Your Account')}">
                         <img src="/static/images/nav/user.png" alt="${_('Your Account')}"/><br/>
-                        ${_('Your Account')}  
+                        ${_('Your Account')}
                     </a>
                 </li>
                 <li><a href="/user/logout" title="${_('Logout')}" class="navlogout">
