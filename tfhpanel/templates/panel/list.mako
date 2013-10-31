@@ -1,14 +1,14 @@
 <%inherit file="layout.mako" />
-<h2>${view.model.display_name}</h2>
+<h2>${panelview.model.display_name}</h2>
 
 % if objects:
 <table>
     <thead>
         <tr>
             <td><!-- natural key --></td>
-         % for f in view.list_fields:
-            % if form.get_field(f) is not None:
-                <td>${form.get_field(f).label}</td>
+         % for f in panelview.list_fields:
+            % if panelview.form.get_field(f) is not None:
+                <td>${panelview.form.get_field(f).label}</td>
             % elif f in utils.get_root_panels_dict():
                 <td>${utils.get_root_panels_dict()[f].model.display_name}</td>
             % elif f == 'user':
@@ -21,13 +21,13 @@
     </thead>
     % for object in objects:
         <tr>
-            <td><a href="${view.make_url(object)}">
+            <td><a href="${utils.make_url(panelview.path, change_ids=object)}">
                 <b>#${object.id} ${object.get_natural_key() if object.natural_key else ''}</b>
             </a></td>
-            % for f in view.list_fields:
+            % for f in panelview.list_fields:
                 <% value = getattr(object, f) %>
-                % if value and view.is_model_object(value):
-                    <td><a class="panel-value" href="${view.make_url(value)}">
+                % if value and panelview.is_model_object(value):
+                    <td><a class="panel-value" href="${utils.make_url(panelview.path, change_ids=value)}">
                         #${value.id} <span class="panel-value">
                             ${value.get_natural_key()}
                         </span>
@@ -42,10 +42,10 @@
     % endfor
 </table>
 % else:
-    <p>${_("No {panel} entries found.").format(panel=view.model.display_name)}</p>
+    <p>${_("No {panel} entries found.").format(panel=panelview.model.display_name)}</p>
 % endif
 
 <hr />
 
-${form.render() | n}
+${panelview.form.render() | n}
 

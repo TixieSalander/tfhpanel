@@ -1,28 +1,36 @@
 <%inherit file="../layout.mako" />
 
-<%block name="sidemenu">
-    ## FIXME: I love recursive stuff
-    <h2><a href="${view.make_url()}">${view.model.display_name}</a></h2>
+<%def name="fu(panellist, index=1)">
     <ul>
-        % for item in utils.get_items(view.model):
-            % if item.id == view.filters['id']:
-                <li class="current">
-                    <a href="${view.make_url(item)}">
-                        ${item.get_natural_key()}
-                    </a>
-                    <ul>
-                        % for m in view.subs:
-                            <li>- <a href="${view.make_url(item)}/${m.model.short_name}/">${m.model.display_name}</a></li>
-                        % endfor
-                    </ul>
-                </li>
-            % else:
-                <li><a href="${view.make_url(item)}">
-                        ${item.get_natural_key()}
-                </a></li>
-            % endif
+        % for short_name, c in panellist[0].children.items():
+            <%
+                newpath = panelview.path[0:index]
+                newpath.append(c)
+                url = utils.make_url(newpath)
+            %>
+            <li><a href="${url}">${c.model.display_name}</a>
+                % if panellist[1:] and panellist[1].children:
+                    ${fu(panellist[1:], index+1)}
+                % endif
+            </li>
         % endfor
     </ul>
+</%def>
+
+<%block name="sidemenu">
+    <% url = utils.make_url(panelview.path[0:1], index=True) %>
+    <h2><a href="${url}">${panelview.path[0].model.display_name}</a></h2>
+    % if panelview.path[0].id:
+        ${fu(panelview.path)}
+    % else:
+        <ul>
+            % for item in utils.get_items(panelview.path[0].model, filter=panelview.filter_query):
+                <% url = utils.make_url(panelview.path[0:1], change_ids=item) %>
+                <li><a href="${url}">${item.get_natural_key()}</a></li>
+            % endfor
+        </ul>
+    % endif
 </%block>
 
 ${self.body()}
+

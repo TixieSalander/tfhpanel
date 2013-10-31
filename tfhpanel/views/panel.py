@@ -7,6 +7,7 @@ from sqlalchemy.orm import joinedload
 
 from tfhnode.models import *
 from tfhpanel.forms import *
+from tfhpanel.models import PanelView
 
 import logging
 log = logging.getLogger(__name__)
@@ -14,6 +15,95 @@ log = logging.getLogger(__name__)
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
+def filter_owned_domain(field, query, request):
+    return query.filter_by(userid = request.user.id)
+
+
+class VHostForm(Form):
+    name = TextField(_('Name'))
+    catchall = TextField(_('Fallback URI'))
+    autoindex = CheckboxField(_('Autoindex'))
+    domains = OneToManyField(_('Domains'), fm=Domain,
+        qf=[filter_owned_domain])
+
+class VHostPanel(PanelView):
+    model = VHost
+    formclass = VHostForm
+    list_fields = ('name', 'user')
+
+
+class DomainForm(Form):
+    domain = TextField(_('Name'))
+    hostedns = CheckboxField(_('Hosted NS'))
+    vhost = ForeignField(_('VHost'), fm=VHost)
+    public = CheckboxField(_('Public'))
+    verified = CheckboxField(_('Verified'), readonly=True)
+
+class DomainPanel(PanelView):
+    model = Domain
+    formclass = DomainForm
+    list_fields = ('user', 'domain', 'vhost', 'hostedns', 'public', 'verified')
+    
+    def get_data(self):
+        d = super().get_data()
+        d['left_template'] = 'domain/view_status.mako'
+        return d
+
+
+class MailboxForm(Form):
+    domain = ForeignField(_('Domain'), fm=Domain)
+    local_part = TextField(_('Local part'))
+    redirect = TextField(_('Redirect (if any)'))
+    password = PasswordField(_('Password (required to accept mails)'))
+
+class MailboxPanel(PanelView):
+    model = Mailbox
+    formclass = MailboxForm
+    list_fields = ('user', 'address')
+
+
+class VHostRewriteForm(Form):
+    regexp = TextField(_('RegExp'))
+    dest = TextField(_('Rewrite to'))
+    redirect_temp = CheckboxField(_('Temporary redirect (302)'))
+    redirect_perm = CheckboxField(_('Permanent redirect (301)'))
+    last = CheckboxField(_('Last'))
+
+class VHostRewritePanel(PanelView):
+    model = VHostRewrite
+    formclass = VHostRewriteForm
+    parent = VHostPanel
+    list_fields = ('regexp', 'dest')
+
+
+class VHostACLForm(Form):
+    title = TextField(_('Title'))
+    regexp = TextField(_('RegExp'))
+    passwd = TextField(_('passwd file'))
+
+class VHostACLPanel(PanelView):
+    model = VHostACL
+    formclass = VHostACLForm
+    parent = VHostPanel
+    list_fields = ('title', 'regexp')
+
+
+class VHostErrorPageForm(Form):
+    code = IntegerField(_('Error code'))
+    path = TextField(_('Page URI'))
+
+class VHostErrorPagePanel(PanelView):
+    model = VHostErrorPage
+    formclass = VHostErrorPageForm
+    parent = VHostPanel
+    list_fields = ('code', 'page')
+
+
+
+
+
+
+'''
 class PanelView(object):
     models = None
     formclass = None
@@ -171,93 +261,6 @@ class PanelView(object):
             self.post() if post else \
             HTTPBadRequest()
 
-def filter_owned_domain(field, query, request):
-    return query.filter_by(userid = request.user.id)
-
-
-class VHostForm(Form):
-    name = TextField(_('Name'))
-    catchall = TextField(_('Fallback URI'))
-    autoindex = CheckboxField(_('Autoindex'))
-    domains = OneToManyField(_('Domains'), fm=Domain,
-        qf=[filter_owned_domain])
-
-@view_config(route_name='p_vhost',  permission='vhost_panel')
-class VHostPanel(PanelView):
-    model = VHost
-    formclass = VHostForm
-    list_fields = ('name', 'user')
-
-
-class DomainForm(Form):
-    domain = TextField(_('Name'))
-    hostedns = CheckboxField(_('Hosted NS'))
-    vhost = ForeignField(_('VHost'), fm=VHost)
-    public = CheckboxField(_('Public'))
-    verified = CheckboxField(_('Verified'), readonly=True)
-
-@view_config(route_name='p_domain',  permission='domain_panel')
-class DomainPanel(PanelView):
-    model = Domain
-    formclass = DomainForm
-    list_fields = ('user', 'domain', 'vhost', 'hostedns', 'public', 'verified')
-    
-    def get_data(self):
-        d = super().get_data()
-        d['left_template'] = 'domain/view_status.mako'
-        return d
-
-class MailboxForm(Form):
-    domain = ForeignField(_('Domain'), fm=Domain)
-    local_part = TextField(_('Local part'))
-    redirect = TextField(_('Redirect (if any)'))
-    password = PasswordField(_('Password (required to accept mails)'))
-
-@view_config(route_name='p_mailbox',  permission='mail_panel')
-class MailboxPanel(PanelView):
-    model = Mailbox
-    formclass = MailboxForm
-    list_fields = ('user', 'address')
-
-
-class VHostRewriteForm(Form):
-    regexp = TextField(_('RegExp'))
-    dest = TextField(_('Rewrite to'))
-    redirect_temp = CheckboxField(_('Temporary redirect (302)'))
-    redirect_perm = CheckboxField(_('Permanent redirect (301)'))
-    last = CheckboxField(_('Last'))
-
-@view_config(route_name='p_vhostrewrite',  permission='vhost_panel')
-class VHostRewritePanel(PanelView):
-    model = VHostRewrite
-    formclass = VHostRewriteForm
-    parent = VHostPanel
-    list_fields = ('regexp', 'dest')
-
-
-class VHostACLForm(Form):
-    title = TextField(_('Title'))
-    regexp = TextField(_('RegExp'))
-    passwd = TextField(_('passwd file'))
-
-@view_config(route_name='p_vhostacl',  permission='vhost_panel')
-class VHostACLPanel(PanelView):
-    model = VHostACL
-    formclass = VHostACLForm
-    parent = VHostPanel
-    list_fields = ('title', 'regexp')
-
-
-class VHostErrorPageForm(Form):
-    code = IntegerField(_('Error code'))
-    path = TextField(_('Page URI'))
-
-@view_config(route_name='p_vhostep',  permission='vhost_panel')
-class VHostErrorPagePanel(PanelView):
-    model = VHostErrorPage
-    formclass = VHostErrorPageForm
-    parent = VHostPanel
-    list_fields = ('code', 'page')
 
 
 root_panels = []
@@ -272,4 +275,4 @@ for pv in PanelView.__subclasses__():
         root_panels.append(pv)
         root_panels_dict[str(pv.model.short_name)] = pv
     del pv
-
+'''

@@ -4,8 +4,8 @@ from sqlalchemy.orm import joinedload
 from pyramid_beaker import session_factory_from_settings
 from pyramid.authorization import ACLAuthorizationPolicy
 from tfhnode.models import Base, DBSession, User, Group
-from pyramid.security import has_permission, Allow, Deny, Authenticated, Everyone, ALL_PERMISSIONS, DENY_ALL
-from tfhpanel.models import AuthenticationPolicy, RootFactory
+from pyramid.security import has_permission, Authenticated
+from tfhpanel.models import AuthenticationPolicy, RootFactory, traversal_view, PanelView, link_panels
 
 def get_user(request):
     if 'uid' not in request.session:
@@ -73,13 +73,9 @@ def main(global_config, **settings):
     config.add_route('user_signup',     '/user/signup')
     config.add_route('user_pwreset',    '/user/pwreset')
     
-    config.add_route('p_vhost',         '/vhost/{id:[0-9a-f]*}')
-    config.add_route('p_vhostrewrite',  '/vhost/{vhostid:[0-9a-f]*}/rewrite/{id:[0-9a-f]*}')
-    config.add_route('p_vhostacl',      '/vhost/{vhostid:[0-9a-f]*}/acl/{id:[0-9a-f]*}')
-    config.add_route('p_vhostep',       '/vhost/{vhostid:[0-9a-f]*}/ep/{id:[0-9a-f]*}')
-    config.add_route('p_mailbox',       '/mailbox/{id:[0-9a-f]*}')
-    config.add_route('p_domain',        '/domain/{id:[0-9a-f]*}')
+    config.add_view(traversal_view, context=PanelView)
 
     config.scan()
+    link_panels()
     return config.make_wsgi_app()
 
