@@ -161,6 +161,13 @@ section{
 
  /* CONTENT */
 
+.content {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(227, 232, 237);
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+}
+}
 .content h2{
     font-size: 2em;
     margin-bottom: 0.5em;
@@ -321,11 +328,10 @@ body#loginform{
     width: 90%;
     color: #3a3a3a;
     font-weight: 200;
-    font-size: 1.5em;
+    font-size: 1.1em;
     line-height: 1;
     padding: 3px;
-    margin-top: 2px;
-    margin-bottom: 16px;
+    margin: 2px auto 16px;
     border: 1px solid rgb(229, 229, 229);
     background: none repeat scroll 0% 0% rgb(251, 251, 251);
     border-color: rgb(221, 221, 221) !important;
@@ -333,11 +339,10 @@ body#loginform{
 }
 .loginform .form input[type=submit]{
     width: auto;
-    padding: 5px 10px;
+    padding: 3px 7px;
     margin: 3px auto;
-    line-height: 35px;
     color: #f1f1f1;
-    font-size: 1.5em;
+    font-size: 1.2em;
     font-weight: lighter;
     text-align: center;
     background: #c72a2a;
