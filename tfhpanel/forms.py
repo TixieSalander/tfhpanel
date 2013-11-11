@@ -64,6 +64,26 @@ class TextField(FormField):
     def eval(self, value, request):
         return value
 
+class LargeTextField(FormField):
+    ''' TextArea '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    def render_input(self, value):
+        output = '<textarea name="%s" id="%s"' % (self.uid, self.uid)
+        if self.classes:
+            output += 'class="%s" ' % ' '.join(self.classes)
+        if self.readonly or self.immutable and value:
+            output += 'readonly="readonly" '
+        output += '>%s</textarea>\n' % (escape_input(value) if value else '')
+        return output
+    
+    def render(self, value):
+        return self.render_label() + self.render_input(str(value or ''))
+    
+    def eval(self, value, request):
+        return value
+
 class IntegerField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'text'

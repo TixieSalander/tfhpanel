@@ -62,6 +62,7 @@ class UserSettingsForm(Form):
     username = TextField(_('Username'))
     password = PasswordField(_('Password'))
     email = TextField(_('E-Mail'))
+    pgppk = LargeTextField(_('PGP public key'))
 
 @view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
 def user_settings(request):
