@@ -6,6 +6,8 @@ from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRe
 from pyramid.renderers import render_to_response
 from collections import namedtuple
 from sqlalchemy.orm import joinedload
+import datetime
+import random
 
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
@@ -38,6 +40,19 @@ def make_url(path, change_ids=None, index=False):
                 break
             url += str(id)
     return url
+
+def make_pgp_token(request):
+    # Remote address, timestamp,
+    token = 'Tux-FreeHost authentication\n'
+    token += 'From %s\n' % request.remote_addr
+    token += 'On %s\n' % datetime.datetime.now().timestamp()
+    token += '---\n'
+    
+    charset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    for i in range(0, 128, 32):
+        randomstuff = [charset[random.randint(0, len(charset)-1)] for n in range(32)]
+        token += ''.join(randomstuff) + '\n'
+    return token
 
 class PanelView(object):
     parent = None
@@ -128,9 +143,9 @@ class PanelView(object):
         if hasattr(object, 'userid'):
             object.userid = self.request.user.id
         for item in self.path:
-            if not item.id or isinstance(item, self):
+            if not item.id or isinstance(item, self.__class__):
                 continue
-            setattr(object, k, v)
+            setattr(object, item.model.short_name+'id', item.id)
 
         errors = self.form.validate(self.request.POST)
         if errors:

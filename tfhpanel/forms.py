@@ -131,7 +131,10 @@ class IntegerField(FormField):
             value = ''
         return self.render_label() + self.render_input(str(value))
     def eval(self, value, request):
-        return int(value)
+        try:
+            return int(value)
+        except ValueError:
+            raise ValidationError(_('Invalid integer field'))
 
 class PasswordField(FormField):
     ''' Password field, crypt() input, dont output anything.

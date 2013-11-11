@@ -5,7 +5,7 @@ from pyramid.renderers import render_to_response
 from sqlalchemy import or_
 from tfhnode.models import User
 from tfhpanel.forms import *
-
+from tfhpanel.models import make_pgp_token
 import logging
 log = logging.getLogger(__name__)
 
@@ -29,15 +29,22 @@ def home(request):
 @view_config(route_name='user_login', renderer='user/login.mako')
 def user_login(request):
     _ = request.translate
+    pgp = 'pgp' in request.GET and request.GET['pgp']
     if request.method == 'POST':
         try:
             username = request.POST['username']
-            password = request.POST['password']
             user = DBSession.query(User) \
                 .filter(or_(User.username==username, User.email==username)) \
                 .first()
             assert user is not None
-            assert user.check_password(password)
+            if pgp:
+                token = request.session['login_cleartoken']
+                signedtoken = request.POST['signedtoken']
+                assert user.verify_signature(cleartext=token, signature=signedtoken)
+            else:
+                password = request.POST['password']
+                assert user.check_password(password)
+            
             request.session['uid'] = user.id
             request.session.flash(('info', _('Logged in.')))
             return HTTPSeeOther(location=request.route_url('user_home'))
@@ -45,7 +52,12 @@ def user_login(request):
             return HTTPBadRequest()
         except AssertionError:
             request.session.flash(('error', _('Invalid username/password.')))
-    return {}
+    if pgp:
+        token = make_pgp_token(request)
+        request.session['login_cleartoken'] = token
+    else:
+        token = ''
+    return {'pgp':pgp, 'pgp_token':token}
 
 @view_config(route_name='user_logout', permission='user')
 def user_logout(request):
@@ -63,7 +75,7 @@ class UserSettingsForm(Form):
     username = TextField(_('Username'))
     password = PasswordField(_('Password'))
     email = TextField(_('E-Mail'))
-    pgppk = PGPKeyField(_('PGP public key'), require=PGPKeyField.PUBKEY)
+    pgppk = PGPKeyField(_('OpenPGP public key'), require=PGPKeyField.PUBKEY)
 
 @view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
 def user_settings(request):
