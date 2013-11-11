@@ -2,7 +2,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPForbidden
 from pyramid.renderers import render_to_response
-
+from sqlalchemy import or_
 from tfhnode.models import User
 from tfhpanel.forms import *
 
@@ -33,8 +33,9 @@ def user_login(request):
         try:
             username = request.POST['username']
             password = request.POST['password']
-            # TODO: match username or email
-            user = DBSession.query(User).filter_by(username=username).first()
+            user = DBSession.query(User) \
+                .filter(or_(User.username==username, User.email==username)) \
+                .first()
             assert user is not None
             assert user.check_password(password)
             request.session['uid'] = user.id

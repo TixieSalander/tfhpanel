@@ -62,6 +62,8 @@ class TextField(FormField):
     def render(self, value):
         return self.render_label() + self.render_input(str(value or ''))
     def eval(self, value, request):
+        if value == '':
+            value = None
         return value
 
 class LargeTextField(FormField):
@@ -82,6 +84,8 @@ class LargeTextField(FormField):
         return self.render_label() + self.render_input(str(value or ''))
     
     def eval(self, value, request):
+        if value == '':
+            value = None
         return value
 
 class IntegerField(FormField):
