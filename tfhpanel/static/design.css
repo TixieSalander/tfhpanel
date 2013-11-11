@@ -420,6 +420,28 @@ h1, h2, h3, h4, h5{
     font-family: 'Open Sans';
 }
 
+/* Forms */
+.content label {
+    display: block;
+}
+.content input[type=text],
+.content input[type=password],
+.content input[type=checkbox] + label,
+.content textarea {
+    margin-bottom: 15px;
+    display: block;
+}
+.content input[type=checkbox] {
+    float: left;
+}
+.content input[type=checkbox] + label {
+    margin-left: 26px;
+}
+
+.clear {
+    clear: both;
+}
+
 /* FONTS */
 
 @font-face {

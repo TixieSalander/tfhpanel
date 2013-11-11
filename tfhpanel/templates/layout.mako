@@ -52,6 +52,7 @@
                     % endfor
                 </div>
                 ${self.body()}
+                <div class="clear"></div>
             </div>
         </section>
     </div>
