@@ -26,24 +26,8 @@
             </a></td>
             % for f in panelview.list_fields:
                 <% value = getattr(object, f) %>
-                % if value and panelview.is_model_object(value):
-                    <%
-                        newpath = panelview.path[:]
-                        view = utils.find_view(value)
-                        v_ = None
-                        for i, v in enumerate(newpath):
-                            if view.parent is None or isinstance(v_, view.parent):
-                                newpath[i] = view()
-                                newpath[i].id = panelview.path[i].id
-                            v_ = v
-                    %>
-                    <td><a class="panel-value" href="${utils.make_url(newpath, change_ids=value)}">
-                        #${value.id} <span class="panel-value">
-                            ${value.get_natural_key()}
-                        </span>
-                    </a></td>
-                % elif value is not None:
-                    <td>${value | utils.format_panel_value, n}</td>
+                % if value is not None:
+                    <td>${utils.format_panel_value(value, panelview) | n}</td>
                 % else:
                     <td>None</td>
                 % endif
