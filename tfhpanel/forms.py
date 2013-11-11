@@ -4,6 +4,7 @@ from pyramid.renderers import render
 from tfhnode.models import *
 from collections import OrderedDict
 import cgi
+import pgpdump
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
@@ -87,6 +88,39 @@ class LargeTextField(FormField):
         if value == '':
             value = None
         return value
+
+class PGPKeyField(LargeTextField):
+    ''' PGP field '''
+    SIGNATURE = pgpdump.packet.SignaturePacket
+    PUBKEY = pgpdump.packet.PublicKeyPacket
+
+    def __init__(self, *args, **kwargs):
+        self.require = kwargs.get('require', None)
+        super().__init__(*args, **kwargs)
+    
+    def render(self, value):
+        data = pgpdump.BinaryData(value)
+        packets = list(data.packets())
+        if packets:
+            value = 'Imported Key:\n0x'+(packets[0].key_id.decode('utf-8'))
+        else:
+            value = ''
+        return super().render(value)
+
+    def eval(self, value, request):
+        data = pgpdump.AsciiData(bytes(value, 'utf-8'))
+        packets = list(data.packets())
+        if not packets:
+            return IgnoreValue()
+
+        packet = packets[0]
+        if not packet:
+            raise ValidationError(_('Invalid PGP key (format)'))
+        if self.require and not isinstance(packet, self.require):
+            raise ValidationError(_('Invalid PGP key (type)'))
+        
+        return data.data
+
 
 class IntegerField(FormField):
     def __init__(self, *args, **kwargs):

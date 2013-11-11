@@ -11,6 +11,7 @@ requires = [
     'pyramid_beaker',
     'waitress',
     'Babel',
+    'pgpdump',
     ]
 
 setup(name='tfhpanel',
