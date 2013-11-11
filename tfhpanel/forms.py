@@ -313,7 +313,7 @@ class Form(object):
                 continue
             if to.id and field.immutable:
                 continue
-            if value is IgnoreValue:
+            if isinstance(value, IgnoreValue):
                 continue
             setattr(to, field.name, value)
     
