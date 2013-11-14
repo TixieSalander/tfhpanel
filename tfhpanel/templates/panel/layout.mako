@@ -24,7 +24,7 @@
         ${fu(panelview.path)}
     % else:
         <ul>
-            % for item in utils.get_items(panelview.path[0].model, filter=panelview.filter_query):
+            % for item in panelview.objects:
                 <% url = utils.make_url(panelview.path[0:1], change_ids=item) %>
                 <li><a href="${url}">${item.get_natural_key()}</a></li>
             % endfor

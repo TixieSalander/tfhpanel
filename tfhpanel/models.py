@@ -113,16 +113,6 @@ class PanelView(object):
             q = q.filter(column == item.id)
         return q
 
-    def is_model_object(self, o=None):
-        if not o:
-            return True
-        try:
-            if o.short_name and o.id:
-                return True
-        except Exception as e:
-            # FIXME c'mon
-            return False
-    
     def render(self, template, data):
         data['panelview'] = self
         return render_to_response('panel/'+template,
@@ -133,9 +123,10 @@ class PanelView(object):
         return HTTPSeeOther(location=url)
 
     def list(self):
-        objects = DBSession.query(self.model).options(joinedload('*'))
+        objects = DBSession.query(self.model)
         objects = self.filter_query(objects).order_by(self.model.id).all()
-        return dict(objects=objects)
+        self.objects = list(objects)
+        return dict(objects=self.objects)
 
     def create(self):
         object = self.model()
@@ -159,14 +150,14 @@ class PanelView(object):
         return dict(object=object)
 
     def read(self):
-        object = DBSession.query(self.model).options(joinedload('*'))
+        object = DBSession.query(self.model)
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
         return dict(object=object)
 
     def update(self):
-        object = DBSession.query(self.model).options(joinedload('*'))
+        object = DBSession.query(self.model)
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')

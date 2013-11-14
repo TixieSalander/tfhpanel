@@ -9,8 +9,8 @@
          % for f in panelview.list_fields:
             % if panelview.form.get_field(f) is not None:
                 <td>${panelview.form.get_field(f).label}</td>
-            % elif f in utils.get_root_panels_dict():
-                <td>${utils.get_root_panels_dict()[f].model.display_name}</td>
+            % elif f in utils.get_root_panels():
+                <td>${utils.get_root_panels()[f].model.display_name}</td>
             % elif f == 'user':
                 <td>${_('User')}</td>
             % else:
