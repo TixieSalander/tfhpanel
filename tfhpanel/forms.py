@@ -5,6 +5,7 @@ from tfhnode.models import *
 from collections import OrderedDict
 import cgi
 import pgpdump
+import binascii
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
@@ -135,7 +136,14 @@ class PGPKeyField(LargeTextField):
         return super().render(value)
 
     def eval(self, value, request):
-        data = pgpdump.AsciiData(bytes(value, 'utf-8'))
+        if '--' not in value:
+            # best way i found to ignore unchanged fields.
+            return IgnoreValue()
+        try:
+            data = pgpdump.AsciiData(bytes(value, 'utf-8'))
+        except binascii.Error:
+            raise ValidationError(_('Invalid PGP key'))
+
         packets = list(data.packets())
         if not packets:
             return IgnoreValue()
@@ -173,6 +181,7 @@ class PasswordField(FormField):
 
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'password'
+        kwargs['required'] = False
         super().__init__(*args, **kwargs)
     
     def render_input(self, value):
@@ -182,16 +191,15 @@ class PasswordField(FormField):
         output += 'id="%s" ' % self.uid
         if self.readonly or self.immutable and value:
             output += 'readonly="readonly" '
-        if self.required:
+        if self.required and not value:
             output += 'required="required" '
-        output += 'value="%s" ' % escape_input(value) if value else ''
         if value:
             output += 'placeholder="&lt;%s&gt;" ' % _('keep empty to not change')
         output += '/>\n'
         return output
 
     def render(self, value):
-        return self.render_label() + self.render_input('')
+        return self.render_label() + self.render_input(value)
     
     def eval(self, value, request):
         if not value:
