@@ -26,13 +26,22 @@ class FormField(object):
         FormField.creation_counter += 1
 
         self.label = kwargs.get('label', args[0] if len(args)>0 else False)
-        self.validator = kwargs.get('validator', None)
         self.readonly = kwargs.get('readonly', False)
         self.immutable = kwargs.get('immutable', False) # Cannot be changed after insert
         self.required = kwargs.get('required', True)
         self.type = kwargs.get('type', '')
         self.classes = kwargs.get('classes', [])
+        
+        self.validators = kwargs.get('v', [])
+        if not isinstance(self.validators, list):
+            self.validators = [self.validators]
     
+    def validate(self, in_value):
+        for validator in self.validators:
+            if not validator(in_value):
+                return False
+        return True
+
     def render_label(self):
         if self.label:
             return '<label for="%s">%s</label>\n'%(self.uid, self.label)
@@ -99,6 +108,8 @@ class PGPKeyField(LargeTextField):
         super().__init__(*args, **kwargs)
     
     def render(self, value):
+        if not value:
+            return super().render(_('No public key.\nPaste your ASCII-armored pubkey here.'))
         data = pgpdump.BinaryData(value)
         packets = list(data.packets())
         if packets:
@@ -151,6 +162,8 @@ class PasswordField(FormField):
     def eval(self, value, request):
         if not value:
             return IgnoreValue()
+        if len(value) > 1024:
+            raise ValidationError(_('Password too long. (>1024)'))
         return crypt.crypt(value)
 
 class CheckboxField(FormField):
@@ -334,9 +347,13 @@ class Form(object):
                 in_value = None
             else:
                 in_value = data[key]
-            
-            if field.validator and not field.validator(in_value):
-                errors.append(_('Invalid field: %s') % field.label or field.name)
+
+            if field.required and not in_value:
+                errors.append(_('Required field: ') + field.label or field.name)
+                continue
+
+            if in_value and not field.validate(in_value):
+                errors.append(_('Invalid field: ') + field.label or field.name)
                 continue
             
             try:

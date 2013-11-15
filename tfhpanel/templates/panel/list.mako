@@ -6,16 +6,8 @@
     <thead>
         <tr>
             <td><!-- natural key --></td>
-         % for f in panelview.list_fields:
-            % if panelview.form.get_field(f) is not None:
-                <td>${panelview.form.get_field(f).label}</td>
-            % elif f in utils.get_root_panels():
-                <td>${utils.get_root_panels()[f].model.display_name}</td>
-            % elif f == 'user':
-                <td>${_('User')}</td>
-            % else:
-                <td>${f}</td>
-            % endif
+        % for f in panelview.list_fields:
+            <td>${f[0]}</td>
         % endfor
         </tr>
     </thead>
@@ -25,7 +17,12 @@
                 <b>#${object.id} ${object.get_natural_key() if object.natural_key else ''}</b>
             </a></td>
             % for f in panelview.list_fields:
-                <% value = getattr(object, f) %>
+                <%
+                    if isinstance(f[1], str):
+                        value = getattr(object, f[1])
+                    else:
+                        value = f[1](object)
+                %>
                 % if value is not None:
                     <td>${utils.format_panel_value(value, panelview) | n}</td>
                 % else:
