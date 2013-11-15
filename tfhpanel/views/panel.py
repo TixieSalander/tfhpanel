@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
-def filter_owned_domain(field, query, request):
+def filter_owned(field, query, request):
     return query.filter_by(userid = request.user.id)
 
 
@@ -24,7 +24,7 @@ class VHostForm(Form):
     catchall = TextField(_('Fallback URI'))
     autoindex = CheckboxField(_('Autoindex'))
     domains = OneToManyField(_('Domains'), fm=Domain,
-        qf=[filter_owned_domain])
+        qf=[filter_owned])
 
 class VHostPanel(PanelView):
     model = VHost
@@ -35,7 +35,7 @@ class VHostPanel(PanelView):
 class DomainForm(Form):
     domain = TextField(_('Name'))
     hostedns = CheckboxField(_('Hosted NS'))
-    vhost = ForeignField(_('VHost'), fm=VHost)
+    vhost = ForeignField(_('VHost'), fm=VHost, qf=[filter_owned])
     public = CheckboxField(_('Public'))
     verified = CheckboxField(_('Verified'), readonly=True)
 
@@ -51,7 +51,7 @@ class DomainPanel(PanelView):
 
 
 class MailboxForm(Form):
-    domain = ForeignField(_('Domain'), fm=Domain)
+    domain = ForeignField(_('Domain'), fm=Domain, qf=[filter_owned])
     local_part = TextField(_('Local part'))
     redirect = TextField(_('Redirect (if any)'))
     password = PasswordField(_('Password (required to accept mails)'))
