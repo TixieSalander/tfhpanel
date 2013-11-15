@@ -31,7 +31,7 @@ class FormField(object):
         self.required = kwargs.get('required', True)
         self.type = kwargs.get('type', '')
         self.classes = kwargs.get('classes', [])
-        
+
         self.validators = kwargs.get('v', [])
         if not isinstance(self.validators, list):
             self.validators = [self.validators]
@@ -44,7 +44,10 @@ class FormField(object):
 
     def render_label(self):
         if self.label:
-            return '<label for="%s">%s</label>\n'%(self.uid, self.label)
+            text = self.label
+            if self.required:
+                text = '<b>%s</b>'%text
+            return '<label for="%s">%s</label>\n'%(self.uid, text)
         return ''
 
     def render_input(self, value):
@@ -54,6 +57,8 @@ class FormField(object):
         output += 'id="%s" ' % self.uid
         if self.readonly or self.immutable and value:
             output += 'readonly="readonly" '
+        if self.required:
+            output += 'required="required" '
         output += 'value="%s" ' % escape_input(value) if value else ''
         output += '/>\n'
         return output
@@ -68,7 +73,18 @@ class TextField(FormField):
     ''' Simple text input field '''
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'text'
+        self.min_len = kwargs.get('min_len', 0)
+        self.max_len = kwargs.get('max_len', 1 << 20)
+        self.regexp = kwargs.get('regexp', None)
         super().__init__(*args, **kwargs)
+    def validate(self, in_value):
+        if (self.min_len and len(in_value) < self.min_len) \
+         or (self.max_len and len(in_value) > self.max_len):
+            raise ValidationError('%s -> %s' % (self.min_len, self.max_len) + _(' characters.'))
+        if self.regexp and not re.match(self.regexp, in_value):
+            raise ValidationError(None)
+            
+        return super().validate(in_value)
     def render(self, value):
         return self.render_label() + self.render_input(str(value or ''))
     def eval(self, value, request):
@@ -137,15 +153,18 @@ class IntegerField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'text'
         super().__init__(*args, **kwargs)
+    def validate(self):
+        try:
+            int(value)
+        except ValueError:
+            raise ValidationError(_('Not an integer'))
+        return super().validate(in_value)
     def render(self, value):
         if value is None:
             value = ''
         return self.render_label() + self.render_input(str(value))
     def eval(self, value, request):
-        try:
-            return int(value)
-        except ValueError:
-            raise ValidationError(_('Invalid integer field'))
+        return int(value)
 
 class PasswordField(FormField):
     ''' Password field, crypt() input, dont output anything.
@@ -155,6 +174,21 @@ class PasswordField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'password'
         super().__init__(*args, **kwargs)
+    
+    def render_input(self, value):
+        output = '<input type="%s" name="%s" '%(self.type, self.uid)
+        if self.classes:
+            output += 'class="%s" ' % ' '.join(self.classes)
+        output += 'id="%s" ' % self.uid
+        if self.readonly or self.immutable and value:
+            output += 'readonly="readonly" '
+        if self.required:
+            output += 'required="required" '
+        output += 'value="%s" ' % escape_input(value) if value else ''
+        if value:
+            output += 'placeholder="&lt;%s&gt;" ' % _('keep empty to not change')
+        output += '/>\n'
+        return output
 
     def render(self, value):
         return self.render_label() + self.render_input('')
@@ -163,7 +197,7 @@ class PasswordField(FormField):
         if not value:
             return IgnoreValue()
         if len(value) > 1024:
-            raise ValidationError(_('Password too long. (>1024)'))
+            raise ValidationError(_('too long. (>1024)'))
         return crypt.crypt(value)
 
 class CheckboxField(FormField):
@@ -183,6 +217,8 @@ class CheckboxField(FormField):
         output += 'id="%s" ' % self.uid
         if self.readonly or self.immutable and value:
             output += 'readonly="readonly" '
+        if self.required:
+            output += 'required="required" '
         output += 'value="1" '
         output += 'checked="%s" ' % 'checked' if value else ''
         output += '/>\n'
@@ -275,30 +311,6 @@ class FormFieldGroup(object):
         self.type = type
         self.fields = fields
 
-
-class Validator(object):
-    def __call__(self, data):
-        raise NotImplementedError()
-
-class StringValidator(Validator):
-    def __init__(self, min_len=1, max_len=254):
-        self.min_len = min_len
-        self.max_len = max_len
-
-    def __call__(self, data):
-        return self.min_len <= len(data) <= self.max_len
-
-class RegexpValidator(Validator):
-    def __init__(self, regexp):
-        if isinstance(regexp, re._pattern_type):
-            self.re = regexp
-        else:
-            self.re = re.compile(regexp)
-
-    def __call__(self, data):
-        return self.re.match(data)
-
-
 class Form(object):
     def __init__(self, request, action, *args, **kwargs):
         self._request = request
@@ -352,16 +364,17 @@ class Form(object):
                 errors.append(_('Required field: ') + field.label or field.name)
                 continue
 
-            if in_value and not field.validate(in_value):
-                errors.append(_('Invalid field: ') + field.label or field.name)
-                continue
-            
             try:
+                if in_value:
+                    field.validate(in_value)
                 value = field.eval(in_value, request=self._request)
                 setattr(self, field.name, value)
                 self._clean_data.append((field, value))
             except ValidationError as e:
-                errors.append(e.message)
+                error = _('Invalid value in ') + field.label or field.name
+                if e.message:
+                    error += ': ' + e.message
+                errors.append(error)
                 continue
         return errors
 

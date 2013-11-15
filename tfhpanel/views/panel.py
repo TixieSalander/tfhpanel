@@ -20,11 +20,10 @@ def filter_owned(field, query, request):
 
 
 class VHostForm(Form):
-    name = TextField(_('Name'),
-        v=[StringValidator(1, 32), RegexpValidator('^[a-zA-Z0-9_-]+$')])
-    catchall = TextField(_('Fallback URI'), v=StringValidator(1, 256))
+    name = TextField(_('Name'), min_len=1, max_len=32, regexp='^[a-zA-Z0-9_-]+$')
+    catchall = TextField(_('Fallback URI'), required=False, min_len=1, max_len=256)
     autoindex = CheckboxField(_('Autoindex'))
-    domains = OneToManyField(_('Domains'), fm=Domain,
+    domains = OneToManyField(_('Domains'), required=False, fm=Domain,
         qf=[filter_owned])
 
 class VHostPanel(PanelView):
@@ -37,9 +36,9 @@ class VHostPanel(PanelView):
 
 
 class DomainForm(Form):
-    domain = TextField(_('Name'), v=StringValidator(1, 256))
-    hostedns = CheckboxField(_('Hosted NS'))
+    domain = TextField(_('Name'), min_len=1, max_len=256)
     vhost = ForeignField(_('VHost'), fm=VHost, qf=[filter_owned])
+    hostedns = CheckboxField(_('Hosted NS'))
     public = CheckboxField(_('Public'))
     verified = CheckboxField(_('Verified'), readonly=True)
 
@@ -59,14 +58,17 @@ class DomainPanel(PanelView):
 
 def mailbox_destination(mailbox):
     if mailbox.redirect:
-        return mailbox.redirect
-    return mailbox.password
+        return _('Redirect: ') + mailbox.redirect
+    if mailbox.password:
+        return _('No password or redirect.')
+    return ''
+
 
 class MailboxForm(Form):
     domain = ForeignField(_('Domain'), fm=Domain, qf=[filter_owned])
-    local_part = TextField(_('Local part'), v=StringValidator(1, 64))
+    local_part = TextField(_('Local part'), min_len=1, max_len=64)
     redirect = TextField(_('Redirect (if any)'), required=False,
-        v=StringValidator(1, 512))
+        min_len=1, max_len=512)
     password = PasswordField(_('Password (required to accept mails)'), required=False)
 
 class MailboxPanel(PanelView):
@@ -85,8 +87,8 @@ class MailboxPanel(PanelView):
 
 
 class VHostRewriteForm(Form):
-    regexp = TextField(_('RegExp'), v=StringValidator(1, 256))
-    dest = TextField(_('Rewrite to'), v=StringValidator(1, 256))
+    regexp = TextField(_('RegExp'), min_len=1, max_len=256)
+    dest = TextField(_('Rewrite to'), min_len=1, max_len=256)
     redirect_temp = CheckboxField(_('Temporary redirect (302)'))
     redirect_perm = CheckboxField(_('Permanent redirect (301)'))
     last = CheckboxField(_('Last'))
@@ -102,15 +104,14 @@ class VHostRewritePanel(PanelView):
 
 
 class VHostACLForm(Form):
-    title = TextField(_('Title'), v=StringValidator(1, 256))
-    regexp = TextField(_('RegExp'), v=StringValidator(1, 256))
-    passwd = TextField(_('passwd file'), v=StringValidator(1, 256))
+    title = TextField(_('Title'), min_len=1, max_len=256)
+    regexp = TextField(_('RegExp'), min_len=1, max_len=256)
+    passwd = TextField(_('passwd file'), min_len=1, max_len=256)
 
 class VHostACLPanel(PanelView):
     model = VHostACL
     formclass = VHostACLForm
     parent = VHostPanel
-    list_fields = ('title', 'regexp')
     list_fields = [
         (_('Title'), 'title'),
         (_('Regular Expression'), 'regexp'),
@@ -119,13 +120,12 @@ class VHostACLPanel(PanelView):
 
 class VHostErrorPageForm(Form):
     code = IntegerField(_('Error code'))
-    path = TextField(_('Page URI'), v=StringValidator(1, 256))
+    path = TextField(_('Page URI'), min_len=1, max_len=256)
 
 class VHostErrorPagePanel(PanelView):
     model = VHostErrorPage
     formclass = VHostErrorPageForm
     parent = VHostPanel
-    list_fields = ('code', 'page')
     list_fields = [
         (_('Code'), 'code'),
         (_('Page'), 'page'),
