@@ -9,6 +9,6 @@
 % endif
 
 <div class="left50">
-    ${panelview.form.render(object) | n}
+    ${panelview.form.render(request, object) | n}
 </div>
 

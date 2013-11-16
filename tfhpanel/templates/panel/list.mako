@@ -39,5 +39,5 @@
 
     <hr />
 
-    ${panelview.form.render() | n}
+    ${panelview.form.render(request) | n}
 </div>

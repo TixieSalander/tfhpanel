@@ -51,7 +51,7 @@ class FormField(object):
             return '<label for="%s">%s</label>\n'%(self.uid, text)
         return ''
 
-    def render_input(self, value):
+    def render_input(self, value, request):
         output = '<input type="%s" name="%s" '%(self.type, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
@@ -64,7 +64,7 @@ class FormField(object):
         output += '/>\n'
         return output
     
-    def render(self, value):
+    def render(self, value, request):
         raise NotImplementedError()
 
     def eval(self, input, request):
@@ -79,7 +79,7 @@ class ChoicesField(FormField):
         self.choices = kwargs.get('choices')
         super().__init__(*args, **kwargs)
     
-    def render_input(self, value):
+    def render_input(self, value, request):
         output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
@@ -95,8 +95,8 @@ class ChoicesField(FormField):
         output += '</select>\n'
         return output
     
-    def render(self, value):
-        return self.render_label() + self.render_input(value)
+    def render(self, value, request):
+        return self.render_label() + self.render_input(value, request)
     
     def eval(self, in_value, request):
         for i, (v, l) in enumerate(self.choices):
@@ -120,8 +120,8 @@ class TextField(FormField):
             raise ValidationError(None)
             
         return super().validate(in_value)
-    def render(self, value):
-        return self.render_label() + self.render_input(str(value or ''))
+    def render(self, value, request):
+        return self.render_label() + self.render_input(str(value or ''), request)
     def eval(self, value, request):
         if value == '':
             value = None
@@ -132,7 +132,7 @@ class LargeTextField(FormField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    def render_input(self, value):
+    def render_input(self, value, request):
         output = '<textarea name="%s" id="%s"' % (self.uid, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
@@ -141,8 +141,8 @@ class LargeTextField(FormField):
         output += '>%s</textarea>\n' % (escape_input(value) if value else '')
         return output
     
-    def render(self, value):
-        return self.render_label() + self.render_input(str(value or ''))
+    def render(self, value, request):
+        return self.render_label() + self.render_input(str(value or ''), request)
     
     def eval(self, value, request):
         if value == '':
@@ -158,7 +158,7 @@ class PGPKeyField(LargeTextField):
         self.require = kwargs.get('require', None)
         super().__init__(*args, **kwargs)
     
-    def render(self, value):
+    def render(self, value, request):
         if not value:
             return super().render(_('No public key.\nPaste your ASCII-armored pubkey here.'))
         data = pgpdump.BinaryData(value)
@@ -167,7 +167,7 @@ class PGPKeyField(LargeTextField):
             value = 'Imported Key:\n0x'+(packets[0].key_id.decode('utf-8'))
         else:
             value = ''
-        return super().render(value)
+        return super().render(value, request)
 
     def eval(self, value, request):
         if '--' not in value:
@@ -201,10 +201,10 @@ class IntegerField(FormField):
         except ValueError:
             raise ValidationError(_('Not an integer'))
         return super().validate(value)
-    def render(self, value):
+    def render(self, value, request):
         if value is None:
             value = ''
-        return self.render_label() + self.render_input(str(value))
+        return self.render_label() + self.render_input(str(value), request)
     def eval(self, value, request):
         return int(value)
 
@@ -218,7 +218,7 @@ class PasswordField(FormField):
         kwargs['required'] = False
         super().__init__(*args, **kwargs)
     
-    def render_input(self, value):
+    def render_input(self, value, request):
         output = '<input type="%s" name="%s" '%(self.type, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
@@ -232,8 +232,8 @@ class PasswordField(FormField):
         output += '/>\n'
         return output
 
-    def render(self, value):
-        return self.render_label() + self.render_input(value)
+    def render(self, value, request):
+        return self.render_label() + self.render_input(value, request)
     
     def eval(self, value, request):
         if not value:
@@ -251,7 +251,7 @@ class CheckboxField(FormField):
         
         super().__init__(*args, **kwargs)
     
-    def render(self, value):
+    def render(self, value, request):
         output = '<input type="%s" '%(self.type)
         output += 'name="%s" ' % self.uid
         if self.classes:
@@ -285,8 +285,8 @@ class ForeignField(TextField):
             self.foreign_model = eval(self.foreign_model)
         super().__init__(*args, **kwargs)
     
-    def render(self, value):
-        return super().render(value.get_natural_key() if value else '')
+    def render(self, value, request):
+        return super().render(value if value else '', request)
     
     def filter_query(self, query, request):
         for qf in self.query_filters:
@@ -328,15 +328,78 @@ class ForeignField(TextField):
             raise ValidationError(_('Cannot find foreign object.'))
         return obj
 
+class ChoicesForeignField(ForeignField):
+    def __init__(self, *args, **kwargs):
+        self.foreign_model = kwargs.get('fm')
+        self.query_filters = kwargs.get('qf', [])
+        self.multiple_values = kwargs.get('multiple_values', False)
+        if isinstance(self.foreign_model, str):
+            self.foreign_model = eval(self.foreign_model)
+        super().__init__(*args, **kwargs)
+    
+    def render_input(self, value, request):
+        output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
+        if self.multiple_values:
+            output += 'multiple="multiple" '
+        if self.classes:
+            output += 'class="%s" ' % ' '.join(self.classes)
+        if self.readonly or self.immutable and value:
+            output += 'disabled="disabled" '
+        if self.required:
+            output += 'required="required" '
+        output += '>\n'
+        if not self.required:
+            output += '<option value="">-</option>\n'
+        items = DBSession.query(self.foreign_model)
+        items = self.filter_query(items, request)
+        items = items.order_by(self.foreign_model.id).all()
+        for item in items:
+            selected = False
+            if isinstance(value, list):
+                for valueitem in value:
+                    if valueitem.id == item.id:
+                        selected = True
+                        break
+            elif value:
+                selected = value.id == item.id
+            output += '<option value="%s"%s>%s</option>\n' % (
+                item.id,
+                ' selected="selected"' if selected else '', 
+                escape_input(item.get_natural_key()))
+        output += '</select>\n'
+        return output
+    
+    def render(self, value, request):
+        return self.render_label() + self.render_input(value, request)
+    
+    def eval(self, in_value, request):
+        try:
+            if self.multiple_values and isinstance(in_value, list):
+                values = []
+                for item in in_value:
+                    q = DBSession.query(self.foreign_model)
+                    q = self.filter_query(q, request)
+                    q = q.filter_by(id=int(str(in_value))).first()
+                    values.append(q)
+                return values
+            else:
+                q = DBSession.query(self.foreign_model)
+                q = self.filter_query(q, request)
+                q = q.filter_by(id=int(str(in_value))).first()
+                return q or [] if self.multiple_values else None
+        except ValueError:
+            return [] if self.multiple_values else None
+    
+
 class OneToManyField(ForeignField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    def render(self, value):
+    def render(self, value, request):
         if value:
             output = ', '.join([v.get_natural_key() for v in value])
         else:
             output = ''
-        return TextField.render(self, output)
+        return TextField.render(self, output, request)
     def eval(self, value, request):
         values = value.split(',')
         objects = []
@@ -377,13 +440,13 @@ class Form(object):
         self._fields.sort(key=lambda o: o.creation_counter)
         self._clean_data = []
 
-    def render(self, dbo=None):
+    def render(self, request, dbo=None):
         output = '<form action="%s" method="%s">\n' %(self._action, self._method)
         for field in self._fields:
             if not dbo and field.readonly:
                 # Do not show readonly field in add form
                 continue
-            output += field.render(getattr(dbo, field.name) if dbo else None)
+            output += field.render(getattr(dbo, field.name) if dbo else None, request)
         output += '<input type="submit" />\n'
         output += '</form>'
         return output
@@ -400,7 +463,8 @@ class Form(object):
                     return False
                 in_value = None
             else:
-                in_value = data[key]
+                alldata = data.getall(key)
+                in_value = alldata if len(alldata) > 1 else alldata[0]
 
             if field.required and not in_value:
                 errors.append(_('Required field: ') + field.label or field.name)

@@ -23,8 +23,7 @@ class VHostForm(Form):
     name = TextField(_('Name'), min_len=1, max_len=32, regexp='^[a-zA-Z0-9_-]+$')
     catchall = TextField(_('Fallback URI'), required=False, min_len=1, max_len=256)
     autoindex = CheckboxField(_('Autoindex'))
-    domains = OneToManyField(_('Domains'), required=False, fm=Domain,
-        qf=[filter_owned])
+    domains = ChoicesForeignField(_('Domains'), required=False, fm=Domain, qf=[filter_owned], multiple_values=True)
     apptype = ChoicesField(_('App type'), choices=[
         (0x00, _('Static')),
         (0x10, _('PHP')),
@@ -43,7 +42,7 @@ class VHostPanel(PanelView):
 
 class DomainForm(Form):
     domain = TextField(_('Name'), min_len=1, max_len=256)
-    vhost = ForeignField(_('VHost'), fm=VHost, qf=[filter_owned])
+    vhost = ChoicesForeignField(_('VHost'), required=False, fm=VHost, qf=[filter_owned])
     hostedns = CheckboxField(_('Hosted NS'))
     public = CheckboxField(_('Public'))
     verified = CheckboxField(_('Verified'), readonly=True)
@@ -71,7 +70,7 @@ def mailbox_destination(mailbox):
 
 
 class MailboxForm(Form):
-    domain = ForeignField(_('Domain'), fm=Domain, qf=[filter_owned])
+    domain = ChoicesForeignField(_('Domain'), fm=Domain, qf=[filter_owned])
     local_part = TextField(_('Local part'), min_len=1, max_len=64)
     redirect = TextField(_('Redirect (if any)'), required=False,
         min_len=1, max_len=512)
