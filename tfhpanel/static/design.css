@@ -320,6 +320,13 @@ hr {
     border-bottom: 1px solid #d7d8d9;
 }
 
+.content a, .content a:visited{
+    color: #c72a2a;
+    text-decoration: none;
+}
+.content a:hover, .content a:active{
+    text-decoration: underline;
+}
 /* Page de connexion */
 body#loginform{
     background: #e6e6e6;
