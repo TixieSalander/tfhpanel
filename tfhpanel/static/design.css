@@ -95,8 +95,11 @@ aside{
     background: #232323;
 }
 aside a{
+    display: inline-block;
+    padding: 3%;
     color: #929292;
     text-decoration: none;
+    border-radius: 3px;
     -webkit-transition: all 0.2s ;
     -moz-transition: all 0.2s ;
     -ms-transition: all 0.2s ;
@@ -106,6 +109,7 @@ aside a{
 aside a:hover{
     color: #fff;
     text-decoration: none;
+    background: #d83e3f;
     -webkit-transition: all 0.2s ;
     -moz-transition: all 0.2s ;
     -ms-transition: all 0.2s ;
@@ -127,10 +131,10 @@ aside ul{
     padding: 0px;
 }
 aside li{
-    width: 90%;
+    width: 95%;
     list-style: none;
-    padding: 5% 0;
-    padding-left: 5%;
+    padding: 2% 0;
+    padding-left: 2%;
     margin-left: 5%;
     margin-bottom: 1px;
     font-size: 1.1em;
