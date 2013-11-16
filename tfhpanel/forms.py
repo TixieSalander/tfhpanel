@@ -258,7 +258,7 @@ class CheckboxField(FormField):
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
         if self.readonly or self.immutable and value:
-            output += 'readonly="readonly" '
+            output += 'disabled="disabled" '
         if self.required:
             output += 'required="required" '
         output += 'value="1" '
