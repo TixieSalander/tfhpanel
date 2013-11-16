@@ -174,7 +174,7 @@ section{
     padding-left: 0.5em;
 
 }
-.right50, .right50 + .left50{
+.right50, .left50, .right50 + .left50{
     width: 45.5%;
     margin: 0px;
 }
