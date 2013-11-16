@@ -134,6 +134,6 @@ class VHostErrorPagePanel(PanelView):
     parent = VHostPanel
     list_fields = [
         (_('Code'), 'code'),
-        (_('Page'), 'page'),
+        (_('Path'), 'path'),
     ]
 

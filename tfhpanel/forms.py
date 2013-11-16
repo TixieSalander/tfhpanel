@@ -195,12 +195,12 @@ class IntegerField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'text'
         super().__init__(*args, **kwargs)
-    def validate(self):
+    def validate(self, value):
         try:
             int(value)
         except ValueError:
             raise ValidationError(_('Not an integer'))
-        return super().validate(in_value)
+        return super().validate(value)
     def render(self, value):
         if value is None:
             value = ''
