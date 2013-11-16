@@ -45,12 +45,13 @@
             <%block name="sidemenu"></%block>
         </aside>
         <section>
+            <div id="messages">
+                % for m in request.session.pop_flash():
+                    <p class="message m-${m[0]}">${m[1]}</p>
+                % endfor
+            </div>
             <div class="content">
-                <div id="messages">
-                    % for m in request.session.pop_flash():
-                        <p class="message m-${m[0]}">${m[1]}</p>
-                    % endfor
-                </div>
+                
                 ${self.body()}
                 <div class="clear"></div>
             </div>
