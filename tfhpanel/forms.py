@@ -70,6 +70,40 @@ class FormField(object):
     def eval(self, input, request):
         raise NotImplementedError()
 
+class ChoicesField(FormField):
+    ''' <select> field
+        choices: [ (0, 'Zero'), (1, 'One') ]
+    '''
+
+    def __init__(self, *args, **kwargs):
+        self.choices = kwargs.get('choices')
+        super().__init__(*args, **kwargs)
+    
+    def render_input(self, value):
+        output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
+        if self.classes:
+            output += 'class="%s" ' % ' '.join(self.classes)
+        if self.readonly or self.immutable and value:
+            output += 'disabled="disabled" '
+        if self.required:
+            output += 'required="required" '
+        output += '>\n'
+        for i, (v, label) in enumerate(self.choices):
+            output += '<option value="%s"%s>%s</option>\n' % (i,
+                ' selected="selected"' if value and value == v else '',
+                escape_input(label))
+        output += '</select>\n'
+        return output
+    
+    def render(self, value):
+        return self.render_label() + self.render_input(value)
+    
+    def eval(self, in_value, request):
+        for i, (v, l) in enumerate(self.choices):
+            if str(i) == in_value:
+                return v
+        return None
+
 class TextField(FormField):
     ''' Simple text input field '''
     def __init__(self, *args, **kwargs):

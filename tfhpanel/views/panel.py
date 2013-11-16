@@ -25,6 +25,12 @@ class VHostForm(Form):
     autoindex = CheckboxField(_('Autoindex'))
     domains = OneToManyField(_('Domains'), required=False, fm=Domain,
         qf=[filter_owned])
+    apptype = ChoicesField(_('App type'), choices=[
+        (0x00, _('Static')),
+        (0x10, _('PHP')),
+        (0x20, _('Python')),
+    ])
+    applocation = TextField(_('App location'), min_len=0, max_len=512, required=False)
 
 class VHostPanel(PanelView):
     model = VHost
