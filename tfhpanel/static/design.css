@@ -470,7 +470,13 @@ h1, h2, h3, h4, h5{
 .content input[type=checkbox]:disabled + label{
     color: #bbb;
 }
-
+.content input[type=text]:disabled,
+.content input[type=password]:disabled,
+.content input[type=checkbox]:disabled + label,
+.content textarea:disabled,
+.content select:disabled {
+    border: 0px;
+}
 
 .clear {
     clear: both;
