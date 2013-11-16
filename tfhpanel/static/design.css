@@ -226,7 +226,7 @@ section{
     background: none repeat scroll 0% 0% rgb(253, 253, 253);
 
     border-bottom: 1px solid rgb(235, 235, 235);
-border-top: 1px solid rgb(255, 255, 255);
+    border-top: 1px solid rgb(255, 255, 255);
 }
 .content table tr:nth-child(even){
     background: #fafafa;
@@ -310,7 +310,7 @@ b{
 
 hr {
     border: none;
-    border-bottom: 1px solid rgb(90, 90, 90);
+    border-bottom: 1px solid #d7d8d9;
 }
 
 /* Page de connexion */
