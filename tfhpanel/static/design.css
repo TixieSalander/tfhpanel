@@ -415,7 +415,7 @@ form{
     display: inline-block;
     min-width: 50%;
 }
-input[type=text], input[type=password], input[type=textarea]{
+input[type=text], input[type=password], input[type=textarea], select {
     width: 100%;
     padding: 6px;
     margin-top: 5px;
@@ -428,9 +428,8 @@ input[type=text], input[type=password], input[type=textarea]{
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
 }
-input[type=text], input[type=password], input[type=submit] {
+input[type=text], input[type=password], input[type=submit], select {
     display: block;
-
 }
 input[type=submit]{
     width: auto;
@@ -508,7 +507,8 @@ h1, h2, h3, h4, h5{
 .content input[type=text],
 .content input[type=password],
 .content input[type=checkbox] + label,
-.content textarea {
+.content textarea,
+.content select {
     margin-bottom: 15px;
     display: block;
 }
