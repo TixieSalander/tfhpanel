@@ -34,6 +34,7 @@ class VHostForm(Form):
 class VHostPanel(PanelView):
     model = VHost
     formclass = VHostForm
+    required_perm = 'vhost_panel'
     list_fields = [
         (_('Name'), 'name'),
         (_('Domains'), 'domains'),
@@ -50,6 +51,7 @@ class DomainForm(Form):
 class DomainPanel(PanelView):
     model = Domain
     formclass = DomainForm
+    required_perm = 'domain_panel'
     list_fields = [
         (_('Domain'), 'domain'),
         (_('VHost'), 'vhost'),
@@ -79,6 +81,7 @@ class MailboxForm(Form):
 class MailboxPanel(PanelView):
     model = Mailbox
     formclass = MailboxForm
+    required_perm = 'mailbox_panel'
     list_fields = [
         (_('Address'), 'address'),
         (_('Destination'), mailbox_destination),
@@ -102,6 +105,7 @@ class VHostRewritePanel(PanelView):
     model = VHostRewrite
     formclass = VHostRewriteForm
     parent = VHostPanel
+    required_perm = 'vhost_panel'
     list_fields = [
         (_('Regular Exception'), 'regexp'),
         (_('Destination'), 'dest'),
@@ -117,6 +121,7 @@ class VHostACLPanel(PanelView):
     model = VHostACL
     formclass = VHostACLForm
     parent = VHostPanel
+    required_perm = 'vhost_panel'
     list_fields = [
         (_('Title'), 'title'),
         (_('Regular Expression'), 'regexp'),
@@ -131,6 +136,7 @@ class VHostErrorPagePanel(PanelView):
     model = VHostErrorPage
     formclass = VHostErrorPageForm
     parent = VHostPanel
+    required_perm = 'vhost_panel'
     list_fields = [
         (_('Code'), 'code'),
         (_('Path'), 'path'),

@@ -2,7 +2,7 @@ from tfhnode.models import *
 from pyramid.security import Allow, Deny, Authenticated, Everyone, ALL_PERMISSIONS, DENY_ALL
 from pyramid.response import Response
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPInternalServerError
+from pyramid.httpexceptions import *
 from pyramid.renderers import render_to_response
 from collections import namedtuple
 from sqlalchemy.orm import joinedload
@@ -54,13 +54,36 @@ def make_pgp_token(request):
         token += ''.join(randomstuff) + '\n'
     return token
 
-class PanelView(object):
+def traversal_view(context, request):
+    return context.handle_request(request)
+
+class RootFactory(object):
+    children = {}
+    __acl__ = [
+        (Allow, Authenticated, 'user'),
+        (Allow, 'group:hosted', 'vhost_panel'),
+        (Allow, 'group:hosted', 'domain_panel'),
+        (Allow, 'group:hosted', 'mail_panel'),
+        (Allow, 'group:hosted', 'support_user'),
+        (Allow, 'group:support', 'support_admin'),
+        (Allow, 'group:admin', ALL_PERMISSIONS),
+        DENY_ALL
+    ]
+
+    def __getitem__(self, name):
+        return self.children[name]([])
+
+    def __init__(self, request):
+        pass
+
+class PanelView(RootFactory):
     parent = None
     children = {}
     model = None
     form = None
     id = None
-    
+    required_perm = None
+
     @property
     @classmethod
     def short_name(cls):
@@ -182,6 +205,9 @@ class PanelView(object):
         post = req.method == 'POST'
         index = not self.id
         
+        if self.required_perm and not self.request.has_permission(self.required_perm):
+            raise HTTPForbidden()
+        
         act = make_url(self.path)
         self.form = self.formclass(self.request, action=act)
         
@@ -192,28 +218,6 @@ class PanelView(object):
             self.redirect(self.update()) if post else \
             HTTPBadRequest()
 
-
-def traversal_view(context, request):
-    return context.handle_request(request)
-
-class RootFactory(object):
-    children = {}
-    __acl__ = [
-        (Allow, Authenticated, 'user'),
-        (Allow, 'group:hosted', 'vhost_panel'),
-        (Allow, 'group:hosted', 'domain_panel'),
-        (Allow, 'group:hosted', 'mail_panel'),
-        (Allow, 'group:hosted', 'support_user'),
-        (Allow, 'group:support', 'support_admin'),
-        (Allow, 'group:admin', ALL_PERMISSIONS),
-        DENY_ALL
-    ]
-
-    def __getitem__(self, name):
-        return self.children[name]([])
-
-    def __init__(self, request):
-        pass
 
 
 
