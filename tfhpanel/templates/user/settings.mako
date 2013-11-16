@@ -2,12 +2,12 @@
 
 <h2>${_('Settings')}</h2>
 <div class="width100">
-	${form.render(object, request) | n}
+    ${form.render(request, object) | n}
 
-	<p>Groups:
-	% for group in request.user.groups:
-    	${group.name}
-	% endfor
-	</p>
+    <p>Groups:
+    % for group in request.user.groups:
+        ${group.name}
+    % endfor
+    </p>
 </div>
 
