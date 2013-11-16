@@ -160,7 +160,7 @@ class PGPKeyField(LargeTextField):
     
     def render(self, value, request):
         if not value:
-            return super().render(_('No public key.\nPaste your ASCII-armored pubkey here.'))
+            return super().render(_('No public key.\nPaste your ASCII-armored pubkey here.'), request)
         data = pgpdump.BinaryData(value)
         packets = list(data.packets())
         if packets:
