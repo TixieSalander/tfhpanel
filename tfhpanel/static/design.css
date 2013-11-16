@@ -109,7 +109,6 @@ aside a{
 aside a:hover{
     color: #fff;
     text-decoration: none;
-    background: #d83e3f;
     -webkit-transition: all 0.2s ;
     -moz-transition: all 0.2s ;
     -ms-transition: all 0.2s ;
@@ -154,6 +153,10 @@ aside li.current:hover{
 aside li.current a{
     color: #fff;
 }
+aside li a:hover{
+    background: #d83e3f;
+}
+
 section{
     display: table-cell;
     width: 80%;
