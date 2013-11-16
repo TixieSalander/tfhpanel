@@ -70,8 +70,8 @@ def mailbox_destination(mailbox):
 
 
 class MailboxForm(Form):
-    domain = ChoicesForeignField(_('Domain'), fm=Domain, qf=[filter_owned])
-    local_part = TextField(_('Local part'), min_len=1, max_len=64)
+    domain = ChoicesForeignField(_('Domain'), fm=Domain, immutable=True, qf=[filter_owned])
+    local_part = TextField(_('Local part'), min_len=1, max_len=64, immutable=True)
     redirect = TextField(_('Redirect (if any)'), required=False,
         min_len=1, max_len=512)
     password = PasswordField(_('Password (required to accept mails)'), required=False)

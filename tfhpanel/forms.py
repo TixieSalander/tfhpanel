@@ -379,14 +379,17 @@ class ChoicesForeignField(ForeignField):
                 for item in in_value:
                     q = DBSession.query(self.foreign_model)
                     q = self.filter_query(q, request)
-                    q = q.filter_by(id=int(str(in_value))).first()
+                    q = q.filter_by(id=int(str(item))).first()
                     values.append(q)
                 return values
             else:
                 q = DBSession.query(self.foreign_model)
                 q = self.filter_query(q, request)
                 q = q.filter_by(id=int(str(in_value))).first()
-                return q or [] if self.multiple_values else None
+                if self.multiple_values:
+                    return [q] or []
+                else:
+                    return q
         except ValueError:
             return [] if self.multiple_values else None
     
