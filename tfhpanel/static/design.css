@@ -415,7 +415,7 @@ form{
     display: inline-block;
     min-width: 50%;
 }
-input[type=text], input[type=password], input[type=textarea], select {
+input[type=text], input[type=password], textarea, select {
     width: 100%;
     padding: 6px;
     margin-top: 5px;
