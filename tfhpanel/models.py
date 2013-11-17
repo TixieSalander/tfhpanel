@@ -5,6 +5,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import *
 from pyramid.renderers import render_to_response
 from collections import namedtuple
+import sqlalchemy
 from sqlalchemy.orm import joinedload
 import datetime
 import random
@@ -168,8 +169,13 @@ class PanelView(RootFactory):
         else:
             self.form.save(object)
             DBSession.add(object)
-            DBSession.commit()
-            self.request.session.flash(('info', _('Saved!')))
+            try:
+                DBSession.commit()
+                self.request.session.flash(('info', _('Saved!')))
+            except sqlalchemy.exc.IntegrityError as err:
+                # TODO: Find what column make the error with err
+                DBSession.rollback()
+                self.request.session.flash(('error', _('Error: duplicate key.')))
         return dict(object=object)
 
     def read(self):
@@ -191,8 +197,13 @@ class PanelView(RootFactory):
                 self.request.session.flash(('error', error))
         else:
             self.form.save(object)
-            DBSession.commit()
-            self.request.session.flash(('info', _('Saved!')))
+            try:
+                DBSession.commit()
+                self.request.session.flash(('info', _('Saved!')))
+            except sqlalchemy.exc.IntegrityError as err:
+                # TODO: Find what column make the error with err
+                DBSession.rollback()
+                self.request.session.flash(('error', _('Error: duplicate key.')))
         return dict(object=object)
     
     def delete(self):
@@ -217,6 +228,7 @@ class PanelView(RootFactory):
             self.redirect(self.create()) if post & index else \
             self.redirect(self.update()) if post else \
             HTTPBadRequest()
+            
 
 
 
