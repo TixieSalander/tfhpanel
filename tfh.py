@@ -18,6 +18,11 @@ def get_subclasses(cls):
 def initdb(args, settings):
     print('Creating DB structure...')
     models.Base.metadata.create_all(DBSession.bind)
+
+    from alembic.config import Config
+    from alembic import command
+    alembic_cfg = Config("./alembic.ini")
+    command.stamp(alembic_cfg, "head")
     
     print('Add default data...')
     try:
