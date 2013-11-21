@@ -71,7 +71,7 @@ def user_home(request):
     return {'user':request.user}
 
 class UserSettingsForm(Form):
-    username = TextField(_('Username'))
+    username = TextField(_('Username'), immutable=True)
     password = PasswordField(_('Password'))
     email = TextField(_('E-Mail'))
     pgppk = PGPKeyField(_('OpenPGP public key'), require=PGPKeyField.PUBKEY)

@@ -39,7 +39,7 @@ def initdb(args, settings):
     except sqlalchemy.exc.IntegrityError:
         pass
 
-def config(args, settings):
+def staticconfig(args, settings):
     configfiles = get_subclasses(services.ConfigFile)
     if args.filename:
         files = []
@@ -66,6 +66,30 @@ def config(args, settings):
         
         print('Generated %s' % file.filename)
 
+def serviceconfig(args, settings):
+    allservices = get_subclasses(services.Service)
+    if args.service:
+        servicesl = []
+        for f in args.service:
+            servicesl.extend(filter(lambda c: c.name==f, allservices))
+    else:
+        servicesl = allservices
+
+    vhosts = list(DBSession.query(models.VHost).all())
+    for service in servicesl:
+        if not service.name:
+            continue
+
+        s = service(args.output, settings)
+        s.clear()
+        for vhost in vhosts:
+            if vhost.apptype & s.appmask:
+                s.generate_vhost(vhost)
+        
+        if args.reload:
+            s.reload()
+
+
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
     parser.add_argument('-v', '--verbose', action='count',
@@ -73,13 +97,22 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', default='development.ini')
     subparsers = parser.add_subparsers(title='subcommands')
     
-    subparsers.add_parser('initdb').set_defaults(func=initdb)
+    subparsers.add_parser('initdb', help='Initialize DB') \
+        .set_defaults(func=initdb)
     
-    parser_add = subparsers.add_parser('config', help='Generate config files')
-    parser_add.set_defaults(func=config)
-    parser_add.add_argument('-f', '--filename', help='Only <filename>', action='append', default=[])
-    parser_add.add_argument('-o', '--output',  default='./config/',
+    parser_sc = subparsers.add_parser('staticconfig', help='Generate config files')
+    parser_sc.set_defaults(func=staticconfig)
+    parser_sc.add_argument('-f', '--filename', help='Only <filename>', action='append', default=[])
+    parser_sc.add_argument('-o', '--output',  default='./config/',
         help='where to put generated config')
+    
+    parser_dc = subparsers.add_parser('serviceconfig', help='Update service config')
+    parser_dc.set_defaults(func=serviceconfig)
+    parser_dc.add_argument('-s', '--service', help='Only <service>', action='append', default=[])
+    parser_dc.add_argument('-o', '--output',  default='./config/',
+        help='where to put generated config')
+    parser_dc.add_argument('-r', '--reload', action='store_true',
+        help='reload chosen services')
 
     args = parser.parse_args()
 
