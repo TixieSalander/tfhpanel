@@ -4,10 +4,12 @@
 <div class="width100">
     ${form.render(request, object) | n}
 
-    <p>Groups:
+    <p><b>Groups:</b></p>
+    <ul>
     % for group in request.user.groups:
-        ${group.name}
+        <li>${group.description}</li>
     % endfor
+    </ul>
     </p>
 </div>
 
