@@ -1,11 +1,13 @@
 import re
 import crypt
 from pyramid.renderers import render
-from tfhnode.models import *
 from collections import OrderedDict
 import cgi
 import pgpdump
 import binascii
+
+from .db import DBSession
+
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 

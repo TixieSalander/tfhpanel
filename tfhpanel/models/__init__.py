@@ -1,4 +1,3 @@
-from tfhnode.models import *
 from pyramid.security import Allow, Deny, Authenticated, Everyone, ALL_PERMISSIONS, DENY_ALL
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -6,22 +5,13 @@ from pyramid.httpexceptions import *
 from pyramid.renderers import render_to_response
 from collections import namedtuple
 import sqlalchemy
-from sqlalchemy.orm import joinedload
 import datetime
 import random
+from .db import *
+from .forms import *
 
 from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
-
-class AuthenticationPolicy(object):
-    def authenticated_userid(self, request):
-        return request.user.id
-
-    def unauthenticated_userid(self, request):
-        return None
-
-    def effective_principals(self, request):
-        return request.principals
 
 def make_url(path, change_ids=None, index=False):
     url = ''

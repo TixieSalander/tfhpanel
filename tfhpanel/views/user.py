@@ -3,9 +3,8 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPForbidden
 from pyramid.renderers import render_to_response
 from sqlalchemy import or_
-from tfhnode.models import User
-from tfhpanel.forms import *
-from tfhpanel.models import make_pgp_token
+from tfhpanel.models import *
+
 import logging
 log = logging.getLogger(__name__)
 

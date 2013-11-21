@@ -4,10 +4,7 @@ from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRe
 from pyramid.renderers import render_to_response
 from collections import namedtuple
 from sqlalchemy.orm import joinedload
-
-from tfhnode.models import *
-from tfhpanel.forms import *
-from tfhpanel.models import PanelView
+from tfhpanel.models import *
 
 import logging
 log = logging.getLogger(__name__)

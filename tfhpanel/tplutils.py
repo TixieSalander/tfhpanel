@@ -1,6 +1,4 @@
-from tfhnode.models import DBSession, Base
-from tfhpanel.models import RootFactory, make_url
-#from tfhpanel.views.panel import root_panels, root_panels_dict
+from tfhpanel.models import DBSession, Base, RootFactory, make_url
 
 def get_root_panels():
     return RootFactory.children
