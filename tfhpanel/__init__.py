@@ -19,6 +19,7 @@ def main(global_config, **settings):
     Base.metadata.bind = engine
     session_factory = session_factory_from_settings(settings)
     config = Configurator(settings=settings)
+    config.include('pyramid_mako')
     config.set_authentication_policy(AuthenticationPolicy())
     config.set_authorization_policy(ACLAuthorizationPolicy())
     config.set_root_factory(RootFactory)

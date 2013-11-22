@@ -6,12 +6,14 @@ requires = [
     'pyramid',
     'SQLAlchemy',
     'transaction',
+    'mako',
+    'pyramid_mako',
     'pyramid_tm',
     'pyramid_beaker',
-    'Babel',
     'pgpdump',
-    'mako',
+    'waitress',
     'alembic',
+    'Babel',
     ]
 
 setup(name='tfhpanel',

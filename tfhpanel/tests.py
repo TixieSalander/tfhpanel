@@ -3,7 +3,7 @@ import transaction
 
 from pyramid import testing
 
-from tfhnode.models import DBSession
+from tfhpanel.models import DBSession
 
 
 class TestMyView(unittest.TestCase):
