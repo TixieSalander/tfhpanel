@@ -3,6 +3,7 @@ from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPOk, HTTPSeeOther, HTTPNotFound, HTTPBadRequest, HTTPInternalServerError
 from pyramid.renderers import render_to_response
 from collections import namedtuple
+from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 from tfhpanel.models import *
 
@@ -15,12 +16,16 @@ _ = TranslationStringFactory('pyramid')
 def filter_owned(field, query, request):
     return query.filter_by(userid = request.user.id)
 
+def filter_domains(field, query, request):
+    return query.filter_by(verified = True)
+
 
 class VHostForm(Form):
     name = TextField(_('Name'), min_len=1, max_len=32, regexp='^[a-zA-Z0-9_-]+$')
     catchall = TextField(_('Fallback URI'), required=False, min_len=1, max_len=256)
     autoindex = CheckboxField(_('Autoindex'))
-    domains = ChoicesForeignField(_('Domains'), required=False, fm=Domain, qf=[filter_owned], multiple_values=True)
+    domains = ChoicesForeignField(_('Domains'), required=False, fm=Domain,
+        qf=[filter_owned, filter_domains], multiple_values=True)
     apptype = ChoicesField(_('App type'), choices=[
         (0x00, _('Static')),
         (0x10, _('PHP')),

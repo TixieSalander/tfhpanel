@@ -106,7 +106,8 @@ class PanelView(RootFactory):
             view = view.parent
     
     def filter_query(self, q, level=None):
-        if not self.request.has_permission('panel_admin'):
+        if not self.request.has_permission('panel_admin') or \
+           not self.request.session.get('admin_show_all_objects', False):
             column = self.find_required_uid()
             if not column:
                 # Cannot determine column, assume no one owns it.

@@ -11,6 +11,7 @@ requires = [
     'Babel',
     'pgpdump',
     'mako',
+    'alembic',
     ]
 
 setup(name='tfhpanel',
