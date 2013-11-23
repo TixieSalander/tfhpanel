@@ -32,5 +32,13 @@
     % endif
 </%block>
 
-${self.body()}
+% if request.has_permission('panel_admin'):
+    % if request.session.get('panel_admin', False):
+        <p><a href="?admin=0">${_('Disable admin mode')}</a></p>
+    % else:
+        <p><a href="?admin=1">${_('Enable admin mode')}</a></p>
+    % endif
+% endif
+
+${next.body()}
 

@@ -52,7 +52,7 @@
             </div>
             <div class="content">
                 
-                ${self.body()}
+                ${next.body()}
                 <div class="clear"></div>
             </div>
         </section>

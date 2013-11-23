@@ -85,6 +85,9 @@ class User(Base):
         
         return i and v and v.pubkey_fingerprint in i.fingerprints
 
+    def __repr__(self):
+        return "User(id=%d, username='%s')" % (self.id, self.username)
+
 usergroup_association = Table('usergroups', Base.metadata,
     Column('userid', Integer, ForeignKey('users.id')),
     Column('groupid', Integer, ForeignKey('groups.id')),
@@ -99,6 +102,9 @@ class Group(Base):
     users    = relationship('User', secondary=usergroup_association, backref='groups')
 
     natural_key = 'name'
+    
+    def __repr__(self):
+        return "Group(id=%d, name='%s')" % (self.id, self.name)
 
 class LoginHistory(Base):
     __tablename__ = 'login_history'
@@ -158,7 +164,7 @@ class Mailbox(Base):
     
     @property
     def address(self):
-        return self.local_part+'@'+self.domain.domain
+        return (self.local_part or '*')+'@'+self.domain.domain
 
     @address.setter
     def address(self, value):

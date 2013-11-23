@@ -54,7 +54,7 @@ class RootFactory(object):
         (Allow, Authenticated, 'user'),
         (Allow, 'group:hosted', 'vhost_panel'),
         (Allow, 'group:hosted', 'domain_panel'),
-        (Allow, 'group:hosted', 'mail_panel'),
+        (Allow, 'group:hosted', 'mailbox_panel'),
         (Allow, 'group:hosted', 'support_user'),
         (Allow, 'group:support', 'support_admin'),
         (Allow, 'group:admin', ALL_PERMISSIONS),
@@ -95,6 +95,9 @@ class PanelView(RootFactory):
                 # Bad URL -> KeyError -> 404
                 raise KeyError()
             return self
+
+    def is_admin(self):
+        return self.request.session.get('panel_admin', False)
     
     def find_required_uid(self):
         view = self
@@ -106,8 +109,7 @@ class PanelView(RootFactory):
             view = view.parent
     
     def filter_query(self, q, level=None):
-        if not self.request.has_permission('panel_admin') or \
-           not self.request.session.get('admin_show_all_objects', False):
+        if not self.is_admin():
             column = self.find_required_uid()
             if not column:
                 # Cannot determine column, assume no one owns it.
@@ -141,7 +143,17 @@ class PanelView(RootFactory):
         objects = DBSession.query(self.model)
         objects = self.filter_query(objects).order_by(self.model.id).all()
         self.objects = list(objects)
-        return dict(objects=self.objects)
+        if hasattr(self.model, 'user') and self.is_admin():
+            list_fields = self.list_fields[:]
+            list_fields.append((_('User'), 'user'))
+        else:
+            list_fields = self.list_fields
+        
+        self.form._defaults['user'] = '#'+str(self.request.user.id)
+        for item in self.path:
+            self.form._defaults[item.model.short_name] = '#'+str(item.id)
+
+        return dict(objects=self.objects, list_fields=list_fields)
 
     def create(self):
         object = self.model()
@@ -210,8 +222,11 @@ class PanelView(RootFactory):
         if self.required_perm and not self.request.has_permission(self.required_perm):
             raise HTTPForbidden()
         
+        if 'admin' in req.GET and self.request.has_permission('panel_admin'):
+            req.session['panel_admin'] = '1' == req.GET['admin']
+
         act = make_url(self.path)
-        self.form = self.formclass(self.request, action=act)
+        self.form = self.formclass(self.request, action=act, admin=self.is_admin())
         
         return \
             self.render('list.mako', self.list()) if get & index else \

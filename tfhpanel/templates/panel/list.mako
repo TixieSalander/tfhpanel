@@ -7,7 +7,7 @@
         <thead>
             <tr>
                 <td><!-- natural key --></td>
-            % for f in panelview.list_fields:
+            % for f in list_fields:
                 <td>${f[0]}</td>
             % endfor
             </tr>
@@ -17,7 +17,7 @@
                 <td><a href="${utils.make_url(panelview.path, change_ids=object)}">
                     <b>#${object.id} ${object.get_natural_key() if object.natural_key else ''}</b>
                 </a></td>
-                % for f in panelview.list_fields:
+                % for f in list_fields:
                     <%
                         if isinstance(f[1], str):
                             value = getattr(object, f[1])
@@ -39,5 +39,5 @@
 
     <hr />
 
-    ${panelview.form.render(request) | n}
+    ${panelview.form.render(request, defaultobject) | n}
 </div>

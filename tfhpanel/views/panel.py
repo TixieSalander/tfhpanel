@@ -14,13 +14,22 @@ from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
 def filter_owned(field, query, request):
-    return query.filter_by(userid = request.user.id)
+    if not request.session.get('panel_admin', False):
+        query = query.filter_by(userid = request.user.id)
+    return query
 
 def filter_domains(field, query, request):
     return query.filter_by(verified = True)
 
 
-class VHostForm(Form):
+class PanelRootForm(Form):
+    '''
+    Base class for root panels
+    '''
+    user = ForeignField(_('User'), fm=User, admin=True)
+
+
+class VHostForm(PanelRootForm):
     name = TextField(_('Name'), min_len=1, max_len=32, regexp='^[a-zA-Z0-9_-]+$')
     catchall = TextField(_('Fallback URI'), required=False, min_len=1, max_len=256)
     autoindex = CheckboxField(_('Autoindex'))
@@ -43,7 +52,7 @@ class VHostPanel(PanelView):
     ]
 
 
-class DomainForm(Form):
+class DomainForm(PanelRootForm):
     domain = TextField(_('Name'), min_len=1, max_len=256)
     vhost = ChoicesForeignField(_('VHost'), required=False, fm=VHost, qf=[filter_owned])
     hostedns = CheckboxField(_('Hosted NS'))
@@ -73,7 +82,7 @@ def mailbox_destination(mailbox):
     return ''
 
 
-class MailboxForm(Form):
+class MailboxForm(PanelRootForm):
     domain = ChoicesForeignField(_('Domain'), fm=Domain, immutable=True, qf=[filter_owned])
     local_part = TextField(_('Local part'), min_len=1, max_len=64, immutable=True)
     redirect = TextField(_('Redirect (if any)'), required=False,
@@ -95,8 +104,14 @@ class MailboxPanel(PanelView):
         d['left_template'] = 'mailbox/view_aliases.mako'
         return d
 
+class PanelVHostChildForm(Form):
+    '''
+    Base class for VHostPanel children
+    '''
+    vhost = ForeignField(_('VHost'), fm=VHost, admin=True)
+    
 
-class VHostRewriteForm(Form):
+class VHostRewriteForm(PanelVHostChildForm):
     regexp = TextField(_('RegExp'), min_len=1, max_len=256)
     dest = TextField(_('Rewrite to'), min_len=1, max_len=256)
     redirect_temp = CheckboxField(_('Temporary redirect (302)'))
@@ -114,7 +129,7 @@ class VHostRewritePanel(PanelView):
     ]
 
 
-class VHostACLForm(Form):
+class VHostACLForm(PanelVHostChildForm):
     title = TextField(_('Title'), min_len=1, max_len=256)
     regexp = TextField(_('RegExp'), min_len=1, max_len=256)
     passwd = TextField(_('passwd file'), min_len=1, max_len=256)
@@ -130,7 +145,7 @@ class VHostACLPanel(PanelView):
     ]
 
 
-class VHostErrorPageForm(Form):
+class VHostErrorPageForm(PanelVHostChildForm):
     code = IntegerField(_('Error code'))
     path = TextField(_('Page URI'), min_len=1, max_len=256)
 

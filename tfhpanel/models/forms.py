@@ -25,12 +25,25 @@ class FormField(object):
     creation_counter = 0
     
     def __init__(self, *args, **kwargs):
+        """
+        Initialize a FormField
+        
+        Keyword arguments:
+        label -- <label> of the field
+        readonly -- cannot be changed by users
+        immutable -- cannot be changed after insert by users
+        admin -- hidden for users
+        required -- disallow empty values
+        type -- <input> type
+        classes -- <input> HTML classes
+        """
         self.creation_counter = FormField.creation_counter
         FormField.creation_counter += 1
 
         self.label = kwargs.get('label', args[0] if len(args)>0 else False)
         self.readonly = kwargs.get('readonly', False)
-        self.immutable = kwargs.get('immutable', False) # Cannot be changed after insert
+        self.immutable = kwargs.get('immutable', False)
+        self.admin = kwargs.get('admin', False)
         self.required = kwargs.get('required', True)
         self.type = kwargs.get('type', '')
         self.classes = kwargs.get('classes', [])
@@ -38,6 +51,16 @@ class FormField(object):
         self.validators = kwargs.get('v', [])
         if not isinstance(self.validators, list):
             self.validators = [self.validators]
+
+    def __repr__(self):
+        return "%s(uid='%s', label='%s')" % (
+            self.__class__.__name__, self.uid, self.label)
+
+    def is_readonly(self, value):
+        '''
+        return true if field should be readonly or disabled
+        '''
+        return (self.readonly or (value and self.immutable)) and not self.form._admin
     
     def validate(self, in_value):
         for validator in self.validators:
@@ -58,7 +81,7 @@ class FormField(object):
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'readonly="readonly" '
         if self.required:
             output += 'required="required" '
@@ -85,7 +108,7 @@ class ChoicesField(FormField):
         output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'disabled="disabled" '
         if self.required:
             output += 'required="required" '
@@ -138,7 +161,7 @@ class LargeTextField(FormField):
         output = '<textarea name="%s" id="%s"' % (self.uid, self.uid)
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'readonly="readonly" '
         output += '>%s</textarea>\n' % (escape_input(value) if value else '')
         return output
@@ -225,7 +248,7 @@ class PasswordField(FormField):
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'readonly="readonly" '
         if self.required and not value:
             output += 'required="required" '
@@ -259,7 +282,7 @@ class CheckboxField(FormField):
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
         output += 'id="%s" ' % self.uid
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'disabled="disabled" '
         if self.required:
             output += 'required="required" '
@@ -345,7 +368,7 @@ class ChoicesForeignField(ForeignField):
             output += 'multiple="multiple" '
         if self.classes:
             output += 'class="%s" ' % ' '.join(self.classes)
-        if self.readonly or self.immutable and value:
+        if self.is_readonly(value):
             output += 'disabled="disabled" '
         if self.required:
             output += 'required="required" '
@@ -428,18 +451,24 @@ class Form(object):
         self._action = action
 
         self._method = kwargs.get('method', 'POST')
+        self._admin = kwargs.get('admin', False)
+        self._defaults = {}
 
         # 'VHostForm' -> 'vhost'
         formname = self.__class__.__name__.lower().replace('form', '')
-
-        for name, obj in self.__class__.__dict__.items():
-            if not isinstance(obj, FormField):
-                continue
-            obj.name = name
-            obj.uid = formname + '_' + name
-            self._fields.append(obj)
-            # Remove fields in instances
-            setattr(self, name, None)
+        
+        cls = self.__class__
+        while cls:
+            for name, obj in cls.__dict__.items():
+                if not isinstance(obj, FormField):
+                    continue
+                obj.name = name
+                obj.uid = formname + '_' + name
+                obj.form = self
+                self._fields.append(obj)
+                # Remove fields in instances
+                setattr(self, name, None)
+            cls = cls.__base__
 
         self._name = formname
         self._fields.sort(key=lambda o: o.creation_counter)
@@ -451,7 +480,16 @@ class Form(object):
             if not dbo and field.readonly:
                 # Do not show readonly field in add form
                 continue
-            output += field.render(getattr(dbo, field.name) if dbo else None, request)
+            if not self._admin and field.admin:
+                # Same for admin only without being admin
+                continue
+            if dbo:
+                value = getattr(dbo, field.name)
+            elif field.name in self._defaults:
+                value = self._defaults[field.name]
+            else:
+                value = None
+            output += field.render(value, request)
         output += '<input type="submit" />\n'
         output += '</form>'
         return output
@@ -459,7 +497,7 @@ class Form(object):
     def validate(self, data):
         errors = []
         for field in self._fields:
-            if field.readonly:
+            if field.readonly and not self._admin:
                 continue
             
             key = self._name + '_' + field.name
@@ -491,9 +529,9 @@ class Form(object):
 
     def save(self, to):
         for field, value in self._clean_data:
-            if field.readonly:
+            if field.readonly and not self._admin:
                 continue
-            if to.id and field.immutable:
+            if to.id and field.immutable and not self._admin:
                 continue
             if isinstance(value, IgnoreValue):
                 continue
