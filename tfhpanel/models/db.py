@@ -42,6 +42,7 @@ class User(Base):
     pgppk    = deferred(Column(Binary()))
     email    = Column(String(512))
     signup_date = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    shell    = Column(String(128))
     
     vhosts   = relationship('VHost', backref='user')
     logins   = relationship('LoginHistory', backref='user')
