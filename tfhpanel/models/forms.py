@@ -79,7 +79,7 @@ class ChoicesField(FormField):
 
     def __init__(self, *args, **kwargs):
         self.choices = kwargs.get('choices')
-        super().__init__(*args, **kwargs)
+        super(ChoicesField, self).__init__(*args, **kwargs)
     
     def render_input(self, value, request):
         output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
@@ -113,7 +113,7 @@ class TextField(FormField):
         self.min_len = kwargs.get('min_len', 0)
         self.max_len = kwargs.get('max_len', 1 << 20)
         self.regexp = kwargs.get('regexp', None)
-        super().__init__(*args, **kwargs)
+        super(TextField, self).__init__(*args, **kwargs)
     def validate(self, in_value):
         if (self.min_len and len(in_value) < self.min_len) \
          or (self.max_len and len(in_value) > self.max_len):
@@ -121,7 +121,7 @@ class TextField(FormField):
         if self.regexp and not re.match(self.regexp, in_value):
             raise ValidationError(None)
             
-        return super().validate(in_value)
+        return super(TextField, self).validate(in_value)
     def render(self, value, request):
         return self.render_label() + self.render_input(str(value or ''), request)
     def eval(self, value, request):
@@ -132,7 +132,7 @@ class TextField(FormField):
 class LargeTextField(FormField):
     ''' TextArea '''
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(LargeTextField, self).__init__(*args, **kwargs)
     
     def render_input(self, value, request):
         output = '<textarea name="%s" id="%s"' % (self.uid, self.uid)
@@ -158,18 +158,18 @@ class PGPKeyField(LargeTextField):
 
     def __init__(self, *args, **kwargs):
         self.require = kwargs.get('require', None)
-        super().__init__(*args, **kwargs)
+        super(PGPKeyField, self).__init__(*args, **kwargs)
     
     def render(self, value, request):
         if not value:
-            return super().render(_('No public key.\nPaste your ASCII-armored pubkey here.'), request)
+            return super(PGPKeyField, self).render(_('No public key.\nPaste your ASCII-armored pubkey here.'), request)
         data = pgpdump.BinaryData(value)
         packets = list(data.packets())
         if packets:
             value = 'Imported Key:\n0x'+(packets[0].key_id.decode('utf-8'))
         else:
             value = ''
-        return super().render(value, request)
+        return super(PGPKeyField, self).render(value, request)
 
     def eval(self, value, request):
         if '--' not in value:
@@ -196,13 +196,13 @@ class PGPKeyField(LargeTextField):
 class IntegerField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'text'
-        super().__init__(*args, **kwargs)
+        super(IntegerField, self).__init__(*args, **kwargs)
     def validate(self, value):
         try:
             int(value)
         except ValueError:
             raise ValidationError(_('Not an integer'))
-        return super().validate(value)
+        return super(IntegerField, self).validate(value)
     def render(self, value, request):
         if value is None:
             value = ''
@@ -218,7 +218,7 @@ class PasswordField(FormField):
     def __init__(self, *args, **kwargs):
         kwargs['type'] = 'password'
         kwargs['required'] = False
-        super().__init__(*args, **kwargs)
+        super(PasswordField, self).__init__(*args, **kwargs)
     
     def render_input(self, value, request):
         output = '<input type="%s" name="%s" '%(self.type, self.uid)
@@ -251,7 +251,7 @@ class CheckboxField(FormField):
         # Never required: no data = false. no field = false.
         kwargs['required'] = False
         
-        super().__init__(*args, **kwargs)
+        super(CheckboxField, self).__init__(*args, **kwargs)
     
     def render(self, value, request):
         output = '<input type="%s" '%(self.type)
@@ -285,10 +285,10 @@ class ForeignField(TextField):
         self.query_filters = kwargs.get('qf', [])
         if isinstance(self.foreign_model, str):
             self.foreign_model = eval(self.foreign_model)
-        super().__init__(*args, **kwargs)
+        super(ForeignField, self).__init__(*args, **kwargs)
     
     def render(self, value, request):
-        return super().render(value if value else '', request)
+        return super(ForeignField, self).render(value if value else '', request)
     
     def filter_query(self, query, request):
         for qf in self.query_filters:
@@ -337,7 +337,7 @@ class ChoicesForeignField(ForeignField):
         self.multiple_values = kwargs.get('multiple_values', False)
         if isinstance(self.foreign_model, str):
             self.foreign_model = eval(self.foreign_model)
-        super().__init__(*args, **kwargs)
+        super(ChoicesForeignField, self).__init__(*args, **kwargs)
     
     def render_input(self, value, request):
         output = '<select name="%s" id="%s" ' % (self.uid, self.uid)
@@ -398,7 +398,7 @@ class ChoicesForeignField(ForeignField):
 
 class OneToManyField(ForeignField):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(OneToManyField, self).__init__(*args, **kwargs)
     def render(self, value, request):
         if value:
             output = ', '.join([v.get_natural_key() for v in value])
@@ -410,7 +410,7 @@ class OneToManyField(ForeignField):
         objects = []
         for item in values:
             item = item.strip()
-            v = super().eval(item, request)
+            v = super(OneToManyField, self).eval(item, request)
             if v:
                 objects.append(v)
         return objects

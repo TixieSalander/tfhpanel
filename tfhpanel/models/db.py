@@ -7,6 +7,7 @@ import re
 import crypt
 import tempfile
 import subprocess
+import random
 
 class MyBase(object):
     natural_key = None
@@ -53,7 +54,11 @@ class User(Base):
         return self.password == crypt.crypt(cleartext, self.password)
 
     def set_password(self, cleartext):
-        self.password = crypt.crypt(cleartext)
+        try:
+            self.password = crypt.crypt(cleartext)
+        except TypeError:
+            charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            self.password = ''.join([random.choice(charset) for n in range(0, 16)])
 
     def verify_signature(self, cleartext, signature):
         import gnupg

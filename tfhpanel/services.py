@@ -51,7 +51,7 @@ class NginxService(Service):
         self.template = Template(filename=os.path.join(os.path.dirname(__file__), 'templates/config/nginx.conf'))
         self.require_verified_domains = settings.get('require_verified_domains', False)
         self.https_port = settings.get('services.nginx.https_port', 443)
-        super().__init__(settings)
+        super(NginxService, self).__init__(settings)
 
 
     def generate_vhost(self, vhost):
@@ -203,7 +203,7 @@ class UwsgiService(Service):
         self.output_ext = '.ini'
         self.uwsgi_socks = settings.get('services.uwsgi-socks', '/var/lib/uwsgi/')
         self.template = Template(filename=os.path.join(os.path.dirname(__file__), 'templates/config/uwsgi.ini'))
-        super().__init__(settings)
+        super(UwsgiService, self).__init__(settings)
 
     def generate_vhost(self, vhost):
         filename = os.path.join(self.output_dir, '%s_%s.ini'%(
@@ -245,7 +245,7 @@ class PhpfpmService(Service):
         self.pidfile = settings.get('services.php.pidfile', None)
         self.reload_signal = settings.get('services.php.signal', 'SIGUSR2')
         self.template = Template(filename=os.path.join(os.path.dirname(__file__), 'templates/config/phpfpm.conf'))
-        super().__init__(settings)
+        super(PhpfpmService, self).__init__(settings)
 
     def generate_vhost(self, vhost):
         filename = os.path.join(self.output_dir, '%s.conf'%(vhost.user.username))

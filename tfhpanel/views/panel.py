@@ -61,7 +61,7 @@ class DomainPanel(PanelView):
     ]
     
     def read(self):
-        d = super().read()
+        d = super(DomainPanel, self).read()
         d['left_template'] = 'domain/view_status.mako'
         return d
 
@@ -90,7 +90,7 @@ class MailboxPanel(PanelView):
     ]
     
     def read(self):
-        d = super().read()
+        d = super(MailboxPanel, self).read()
         d['aliases'] = DBSession.query(Mailbox).filter_by(redirect=d['object'].address).all()
         d['left_template'] = 'mailbox/view_aliases.mako'
         return d
