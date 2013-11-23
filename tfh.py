@@ -15,6 +15,7 @@ def get_subclasses(cls):
         subclasses.extend(get_subclasses(c))
     return subclasses
 
+
 def initdb(args, settings):
     print('Creating DB structure...')
     models.Base.metadata.create_all(DBSession.bind)
@@ -25,19 +26,24 @@ def initdb(args, settings):
     command.stamp(alembic_cfg, "head")
     
     print('Add default data...')
-    try:
-        hosted_group = models.Group(name='hosted', description='Hosted users')
-        support_group = models.Group(name='support', description='Support')
-        admin_group = models.Group(name='admin', description='Administrator')
-        DBSession.add_all([hosted_group, support_group, admin_group])
-        DBSession.commit()
+    def try_add(obj):
+        try:
+            DBSession.add(obj)
+            DBSession.commit()
+        except sqlalchemy.exc.IntegrityError:
+            DBSession.rollback()
+            pass
+
+    hosted_group = models.Group(name='hosted', description='Hosted users')
+    support_group = models.Group(name='support', description='Support')
+    admin_group = models.Group(name='admin', description='Administrator')
+    try_add(hosted_group)
+    try_add(support_group)
+    try_add(admin_group)
         
-        admin_user = models.User(username='admin', groups=[admin_group])
-        admin_user.set_password('admin')
-        DBSession.add(admin_user)
-        DBSession.commit()
-    except sqlalchemy.exc.IntegrityError:
-        pass
+    admin_user = models.User(username='admin', groups=[admin_group])
+    admin_user.set_password('admin')
+    try_add(admin_user)
 
 def staticconfig(args, settings):
     configfiles = get_subclasses(services.ConfigFile)
