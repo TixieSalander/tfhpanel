@@ -5,6 +5,7 @@
     <li>${utils.format_panel_value(alias, panelview) | n}</li>
     % endfor
 </ul>
-% endif
+% else:
 <p>${_('This mailbox has no aliases')}</p>
+% endif
 

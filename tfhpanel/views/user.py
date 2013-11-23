@@ -45,6 +45,7 @@ def user_login(request):
                 assert user.check_password(password)
             
             request.session['uid'] = user.id
+            request.session['panel_admin'] = False
             request.session.flash(('info', _('Logged in.')))
             return HTTPSeeOther(location=request.route_url('user_home'))
         except KeyError:

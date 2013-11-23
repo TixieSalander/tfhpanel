@@ -385,8 +385,12 @@ class ChoicesForeignField(ForeignField):
                     if valueitem.id == item.id:
                         selected = True
                         break
-            elif value:
+            elif isinstance(value, self.foreign_model):
                 selected = value.id == item.id
+            elif isinstance(value, int):
+                selected = value == item.id
+            else:
+                selected = value == '#'+str(item.id)
             output += '<option value="%s"%s>%s</option>\n' % (
                 item.id,
                 ' selected="selected"' if selected else '', 
