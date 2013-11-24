@@ -1,5 +1,5 @@
 <%inherit file="layout.mako" />
-<h2>${panelview.model.display_name}</h2>
+<h2>${panelview.make_title() | n}</h2>
 
 <div class="width100">
     % if objects:

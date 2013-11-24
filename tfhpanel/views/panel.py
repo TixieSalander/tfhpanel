@@ -14,7 +14,6 @@ from pyramid.i18n import TranslationStringFactory
 _ = TranslationStringFactory('pyramid')
 
 def filter_owned(field, query, request):
-    print(repr(request.session.get('panel_admin', False)))
     if not request.session.get('panel_admin', False):
         query = query.filter_by(userid = request.user.id)
     return query

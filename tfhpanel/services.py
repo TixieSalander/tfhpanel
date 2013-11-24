@@ -70,8 +70,8 @@ class NginxService(Service):
                 pubdir = oldpubdir
             elif self.settings.get('services.nginx.make_http_dirs', False):
                 os.makedirs(pubdir)
-                os.system('chown %s:%s -R %s'%(
-                    vhost.user.username, vhost.user.username, pubdir))
+                os.system('chown %s -R %s'%(
+                    vhost.user.username, pubdir))
         
         appsocket = None
         if vhost.apptype & 0x20: # uwsgi apps

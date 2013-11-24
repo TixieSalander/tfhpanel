@@ -87,6 +87,7 @@ class PanelView(RootFactory):
 
     def __getitem__(self, name):
         if self.id:
+            # TODO: get object #id => self.object
             return self.children[name](self.path)
         else:
             try:
@@ -130,6 +131,23 @@ class PanelView(RootFactory):
             q = q.filter(column == item.id)
         return q
 
+    def make_title(self):
+        title = ''
+        sep = ' &#xbb; '
+        for i in range(1, len(self.path)+1):
+            path = self.path[0:i]
+            url = make_url(path)
+            name = path[-1].model.display_name
+            if i > 1:
+                title += sep
+            title += '<a href="%s">%s</a>' % (make_url(path, index=True), name)
+            if hasattr(path[-1], 'object'):
+                title += sep+'<a href="%s">%s</a>' % (make_url(path), path[-1].object.get_natural_key())
+            elif path[-1].id:
+                title += sep+'<a href="%s">#%s</a>' % (make_url(path), path[-1].id)
+        return title
+            
+
     def render(self, template, data):
         data['panelview'] = self
         return render_to_response('panel/'+template,
@@ -151,6 +169,8 @@ class PanelView(RootFactory):
         
         self.form._defaults['user'] = '#'+str(self.request.user.id)
         for item in self.path:
+            if not item.id:
+                continue
             self.form._defaults[item.model.short_name] = '#'+str(item.id)
 
         return dict(objects=self.objects, list_fields=list_fields)

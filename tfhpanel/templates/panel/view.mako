@@ -1,6 +1,6 @@
 <%inherit file="layout.mako" />
 
-<h2>${object.display_name} - ${object.get_natural_key()}</h2>
+<h2>${panelview.make_title() | n}</h2>
 
 % if left_template:
     <div class="right50">
