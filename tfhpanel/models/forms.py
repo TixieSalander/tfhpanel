@@ -5,6 +5,7 @@ from collections import OrderedDict
 import cgi
 import pgpdump
 import binascii
+import ast
 
 from .db import DBSession
 
@@ -222,7 +223,7 @@ class IntegerField(FormField):
         super(IntegerField, self).__init__(*args, **kwargs)
     def validate(self, value):
         try:
-            int(value)
+            ast.literal_eval(value)
         except ValueError:
             raise ValidationError(_('Not an integer'))
         return super(IntegerField, self).validate(value)
@@ -231,7 +232,7 @@ class IntegerField(FormField):
             value = ''
         return self.render_label() + self.render_input(str(value), request)
     def eval(self, value, request):
-        return int(value)
+        return ast.literal_eval(value)
 
 class PasswordField(FormField):
     ''' Password field, crypt() input, dont output anything.
@@ -319,15 +320,10 @@ class ForeignField(TextField):
         return query
 
     def eval(self, value, request):
-        if value.startswith('0x'):
-            id = int(value[2:].split(' ', 1)[0], 16)
-            obj = DBSession.query(self.foreign_model).filter_by(id=id)
-            obj = self.filter_query(obj, request).first()
-            if obj:
-                return obj
-            
-        if value.startswith('#'):
-            id = int(value[1:].split(' ', 1)[0])
+        if value.startwith('#'):
+            svalue = value.split(' ', 1)[0]
+            svalue = svalue[1:]
+            id = ast.literal_eval(svalue)
             obj = DBSession.query(self.foreign_model).filter_by(id=id)
             obj = self.filter_query(obj, request).first()
             if obj:
@@ -498,15 +494,21 @@ class Form(object):
         output += '</form>'
         return output
 
-    def validate(self, data):
+    def save(self, data, to):
         errors = []
         for field in self._fields:
             if field.readonly and not self._admin:
                 continue
+            if field.immutable and to.id and not self._admin:
+                continue
             
             key = self._name + '_' + field.name
             if key not in data:
+                if field.immutable:
+                    continue
                 if field.required:
+                    if field.admin:
+                        continue
                     return False
                 in_value = None
             else:
@@ -521,8 +523,8 @@ class Form(object):
                 if in_value:
                     field.validate(in_value)
                 value = field.eval(in_value, request=self._request)
-                setattr(self, field.name, value)
-                self._clean_data.append((field, value))
+                if not isinstance(value, IgnoreValue):
+                    setattr(to, field.name, value)
             except ValidationError as e:
                 error = _('Invalid value in ') + field.label or field.name
                 if e.message:
@@ -531,16 +533,6 @@ class Form(object):
                 continue
         return errors
 
-    def save(self, to):
-        for field, value in self._clean_data:
-            if field.readonly and not self._admin:
-                continue
-            if to.id and field.immutable and not self._admin:
-                continue
-            if isinstance(value, IgnoreValue):
-                continue
-            setattr(to, field.name, value)
-    
     def get_field(self, name):
         for f in self._fields:
             if f.name == name:

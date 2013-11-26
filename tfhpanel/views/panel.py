@@ -77,7 +77,7 @@ class DomainPanel(PanelView):
 def mailbox_destination(mailbox):
     if mailbox.redirect:
         return _('Redirect: ') + mailbox.redirect
-    if mailbox.password:
+    if not mailbox.password:
         return _('No password or redirect.')
     return ''
 

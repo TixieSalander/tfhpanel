@@ -185,12 +185,11 @@ class PanelView(RootFactory):
                 continue
             setattr(object, item.model.short_name+'id', item.id)
 
-        errors = self.form.validate(self.request.POST)
+        errors = self.form.save(self.request.POST, object)
         if errors:
             for error in errors:
                 self.request.session.flash(('error', error))
         else:
-            self.form.save(object)
             DBSession.add(object)
             try:
                 DBSession.commit()
@@ -206,6 +205,7 @@ class PanelView(RootFactory):
         object = self.filter_query(object).first()
         if not object:
             raise HTTPNotFound(comment='object not found')
+        self.object = object
         return dict(object=object)
 
     def update(self):
@@ -214,12 +214,14 @@ class PanelView(RootFactory):
         if not object:
             raise HTTPNotFound(comment='object not found')
         
-        errors = self.form.validate(self.request.POST)
+        errors = self.form.save(self.request.POST, object)
         if errors:
+            # del object to ignore any changes
+            del object
+            object = None
             for error in errors:
                 self.request.session.flash(('error', error))
         else:
-            self.form.save(object)
             try:
                 DBSession.commit()
                 self.request.session.flash(('info', _('Saved!')))

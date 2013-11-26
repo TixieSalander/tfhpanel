@@ -74,7 +74,7 @@ def user_home(request):
 class UserSettingsForm(Form):
     username = TextField(_('Username'), immutable=True)
     password = PasswordField(_('Password'))
-    email = TextField(_('E-Mail'))
+    email = TextField(_('E-Mail'), required=False)
     pgppk = PGPKeyField(_('OpenPGP public key'), require=PGPKeyField.PUBKEY)
 
 @view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
@@ -82,12 +82,11 @@ def user_settings(request):
     form = UserSettingsForm(request, request.route_url('user_settings'))
     object = request.user
     if request.method == 'POST':
-        errors = form.validate(request.POST)
+        errors = form.save(request.POST, object)
         if errors:
             for error in errors:
                 request.session.flash(('error', error))
         else:
-            form.save(object)
             if form.password and not isinstance(form.password, IgnoreValue):
                 object.set_password(form.password)
             DBSession.commit()
