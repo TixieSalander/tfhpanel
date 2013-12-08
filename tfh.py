@@ -73,27 +73,9 @@ def staticconfig(args, settings):
         print('Generated %s' % file.filename)
 
 def serviceconfig(args, settings):
-    allservices = get_subclasses(services.Service)
-    if args.service:
-        servicesl = []
-        for f in args.service:
-            servicesl.extend(filter(lambda c: c.name==f, allservices))
-    else:
-        servicesl = allservices
-
     vhosts = list(DBSession.query(models.VHost).all())
-    for service in servicesl:
-        if not service.name:
-            continue
-
-        s = service(args.output, settings)
-        s.clear()
-        for vhost in vhosts:
-            if vhost.apptype & s.appmask:
-                s.generate_vhost(vhost)
-        
-        if args.reload:
-            s.reload()
+    for vhost in vhosts:
+        vhost.on_update(settings)
 
 
 if __name__ == '__main__':

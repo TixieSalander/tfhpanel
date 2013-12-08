@@ -390,7 +390,7 @@ class ChoicesForeignField(ForeignField):
             output += '<option value="%s"%s>%s</option>\n' % (
                 item.id,
                 ' selected="selected"' if selected else '', 
-                escape_input(item.get_natural_key()))
+                escape_input(str(item)))
         output += '</select>\n'
         return output
     
@@ -424,7 +424,7 @@ class OneToManyField(ForeignField):
         super(OneToManyField, self).__init__(*args, **kwargs)
     def render(self, value, request):
         if value:
-            output = ', '.join([v.get_natural_key() for v in value])
+            output = ', '.join([str(v) for v in value])
         else:
             output = ''
         return TextField.render(self, output, request)

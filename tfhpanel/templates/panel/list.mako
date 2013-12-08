@@ -15,7 +15,7 @@
         % for object in objects:
             <tr>
                 <td><a href="${utils.make_url(panelview.path, change_ids=object)}">
-                    <b>#${object.id} ${object.get_natural_key() if object.natural_key else ''}</b>
+                    <b>${str(object)}</b>
                 </a></td>
                 % for f in list_fields:
                     <%
@@ -34,7 +34,7 @@
         % endfor
     </table>
     % else:
-        <p>${_("No {panel} entries found.").format(panel=panelview.model.display_name)}</p>
+        <p>${_("No {panel} entries found.").format(panel=panelview.model.__display_name__)}</p>
     % endif
 
     <hr />

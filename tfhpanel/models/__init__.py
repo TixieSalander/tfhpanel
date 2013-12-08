@@ -16,14 +16,14 @@ _ = TranslationStringFactory('pyramid')
 def make_url(path, change_ids=None, index=False):
     url = ''
     for item in path:
-        url += '/%s/' % item.model.short_name
+        url += '/%s/' % item.model.__short_name__
 
         id = item.id
         if change_ids:
             if isinstance(change_ids, item.model):
                 attr = 'id'
             else:
-                attr = item.model.short_name + 'id'
+                attr = item.model.__short_name__ + 'id'
             if hasattr(change_ids, attr):
                 id = getattr(change_ids, attr)
         if id:
@@ -78,7 +78,7 @@ class PanelView(RootFactory):
     @property
     @classmethod
     def short_name(cls):
-        return cls.model.short_name
+        return cls.model.__short_name__
 
     def __init__(self, path=[]):
         self.id = None
@@ -117,6 +117,9 @@ class PanelView(RootFactory):
                 raise HTTPForbidden()
             q = q.filter(column == self.request.user.id)
         
+        if hasattr(self.model, 'deleted'):
+            q = q.filter_by(deleted=False)
+
         for item in self.path:
             if not item.id:
                 continue
@@ -127,7 +130,7 @@ class PanelView(RootFactory):
             if item.model == self.model:
                 column = getattr(self.model, 'id')
             else:
-                column = getattr(self.model, item.model.short_name + 'id')
+                column = getattr(self.model, item.model.__short_name__ + 'id')
             q = q.filter(column == item.id)
         return q
 
@@ -137,16 +140,15 @@ class PanelView(RootFactory):
         for i in range(1, len(self.path)+1):
             path = self.path[0:i]
             url = make_url(path)
-            name = path[-1].model.display_name
+            name = path[-1].model.__display_name__
             if i > 1:
                 title += sep
             title += '<a href="%s">%s</a>' % (make_url(path, index=True), name)
             if hasattr(path[-1], 'object'):
-                title += sep+'<a href="%s">%s</a>' % (make_url(path), path[-1].object.get_natural_key())
+                title += sep+'<a href="%s">%s</a>' % (make_url(path), str(path[-1].object))
             elif path[-1].id:
                 title += sep+'<a href="%s">#%s</a>' % (make_url(path), path[-1].id)
         return title
-            
 
     def render(self, template, data):
         data['panelview'] = self
@@ -171,7 +173,7 @@ class PanelView(RootFactory):
         for item in self.path:
             if not item.id:
                 continue
-            self.form._defaults[item.model.short_name] = '#'+str(item.id)
+            self.form._defaults[item.model.__short_name__] = str(item.id)
 
         return dict(objects=self.objects, list_fields=list_fields)
 
@@ -183,7 +185,7 @@ class PanelView(RootFactory):
         for item in self.path:
             if not item.id or isinstance(item, self.__class__):
                 continue
-            setattr(object, item.model.short_name+'id', item.id)
+            setattr(object, item.model.__short_name__+'id', item.id)
 
         errors = self.form.save(self.request.POST, object)
         if errors:
@@ -193,6 +195,8 @@ class PanelView(RootFactory):
             DBSession.add(object)
             try:
                 DBSession.commit()
+                if hasattr(object, 'on_create'):
+                    object.on_create(self.request)
                 self.request.session.flash(('info', _('Saved!')))
             except sqlalchemy.exc.IntegrityError as err:
                 # TODO: Find what column make the error with err
@@ -224,6 +228,8 @@ class PanelView(RootFactory):
         else:
             try:
                 DBSession.commit()
+                if hasattr(object, 'on_update'):
+                    object.on_update(self.request)
                 self.request.session.flash(('info', _('Saved!')))
             except sqlalchemy.exc.IntegrityError as err:
                 # TODO: Find what column make the error with err
@@ -271,9 +277,9 @@ def link_panels():
         if pv.parent and not pv.parent.children:
             pv.parent.children = {}
         if pv.parent and not pv in pv.parent.children:
-            pv.parent.children[pv.model.short_name] = pv
+            pv.parent.children[pv.model.__short_name__] = pv
         else:
-            RootFactory.children[pv.model.short_name] = pv
+            RootFactory.children[pv.model.__short_name__] = pv
         
         pv.reverse_path = []
         o = pv

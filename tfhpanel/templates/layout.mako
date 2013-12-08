@@ -15,10 +15,10 @@
             <ul>
                 % for short_name, panel in utils.get_root_panels().items():
                     <li>
-                        <a href="/${panel.model.short_name}/">
-                            <img src="/static/images/nav/${panel.model.short_name}.png"
-                                alt="${panel.model.display_name}" /><br/>
-                            ${panel.model.display_name}
+                        <a href="/${panel.model.__short_name__}/">
+                            <img src="/static/images/nav/${panel.model.__short_name__}.png"
+                                alt="${panel.model.__display_name__}" /><br/>
+                            ${panel.model.__display_name__}
                         </a>
                     </li>
                 % endfor

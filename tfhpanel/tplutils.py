@@ -27,9 +27,9 @@ def format_panel_value(value, panelview):
                     newpath[i].id = panelview.path[i].id
                 v_ = v
             url = make_url(newpath, change_ids=value)
-            return '<a href="%s">#%d %s</a>'%(url, value.id, value.get_natural_key())
+            return '<a href="%s">%s</a>'%(url, str(value))
         else:
-            return '#%d %s' % (value.id, value.get_natural_key())
+            return str(value)
 
     return '<span class="panel-value">'+str(value)+'</span>'
 
