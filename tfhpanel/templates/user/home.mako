@@ -7,10 +7,6 @@
             <h3>My Acccount</h3>
         </caption>
         <tr>
-            <td>Offre</td>
-            <td>Start Plan</td>
-        </tr>
-        <tr>
             <td>Disk Space Usage</td>
             <td>215 MB / 400 MB</td>
         </tr>
@@ -25,10 +21,6 @@
         <tr>
             <td>MySQL Databases</td>
             <td>1 / 1</td>
-        </tr>
-        <tr class="tfooter">
-            <td><a href="/support/">${_('More')}</a></td>
-            <td></td>
         </tr>
     </table>
 
