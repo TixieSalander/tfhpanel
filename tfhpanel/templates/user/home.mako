@@ -1,10 +1,15 @@
 <%inherit file="layout.mako" />
+
 <h2>${_('Home')}</h2>
 <div class="right50">
     <table class="stats">
         <caption>
             <h3>My Acccount</h3>
         </caption>
+        <tr>
+            <td>Offre</td>
+            <td>Start Plan</td>
+        </tr>
         <tr>
             <td>Disk Space Usage</td>
             <td>215 MB / 400 MB</td>
@@ -21,7 +26,12 @@
             <td>MySQL Databases</td>
             <td>1 / 1</td>
         </tr>
+        <tr class="tfooter">
+            <td><a href="/support/">${_('More')}</a></td>
+            <td></td>
+        </tr>
     </table>
+
     <table class="tickets-home">
         <caption>
             <h3>${_('Support Tickets')}</h3>
@@ -48,6 +58,7 @@
         </tr>
     </table>
 </div>
+
 <div class="left50">
     <div id="infos-home">
         <h3>Welcome back on your panel</h3>
