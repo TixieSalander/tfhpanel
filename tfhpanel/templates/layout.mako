@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/reset.css" />
     <link rel="stylesheet" href="/static/design.css" />
+    <link rel="icon" href="/static/images/favicon.png" />
 </head>
 <body>
     <header>
