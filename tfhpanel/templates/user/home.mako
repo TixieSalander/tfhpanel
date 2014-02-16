@@ -4,33 +4,26 @@
 <div class="right50">
     <table class="stats">
         <caption>
-            <h3>Mon offre</h3>
+            <h3>My Acccount</h3>
         </caption>
         <tr>
-            <td>Offre</td>
-            <td>Start Plan</td>
-        </tr>
-        <tr>
-            <td>Espace disque</td>
+            <td>Disk Space Usage</td>
             <td>215 MB / 400 MB</td>
         </tr>
         <tr>
-            <td>Bande Passante</td>
+            <td>Monthly Bandwidth Transfer</td>
             <td>1 GB / 20 GB</td>
         </tr>
         <tr>
-            <td>Compte SQL</td>
+            <td>SQL Accounts</td>
             <td>1 / 1</td>
         </tr>
         <tr>
-            <td>Bases de donnees</td>
+            <td>MySQL Databases</td>
             <td>1 / 1</td>
         </tr>
-        <tr class="tfooter">
-            <td><a href="">${_('Upgrade')}</a></td>
-            <td></td>
-        </tr>
     </table>
+
     <table class="tickets-home">
         <caption>
             <h3>${_('Support Tickets')}</h3>
@@ -41,15 +34,15 @@
         </tr>
         <tr>
             <td>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit</td>
-            <td>27 Aout 2013</td>
+            <td>27 August 2013</td>
         </tr>
         <tr>
             <td>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit</td>
-            <td>27 Aout 2013</td>
+            <td>27 August 2013</td>
         </tr>
         <tr>
             <td>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit</td>
-            <td>27 Aout 2013</td>
+            <td>27 August 2013</td>
         </tr>
         <tr class="tfooter">
             <td><a href="/support/">${_('More')}</a></td>
@@ -60,14 +53,14 @@
 
 <div class="left50">
     <div id="infos-home">
-        <h3>Bienvenue sur votre panel de gestion de compte</h3>
-        <p>Il vous permet de gerer votre compte ainsi que les services associes.<br/></p>
+        <h3>Welcome back on your panel</h3>
+        <p>It allow you to manage your account and attached services.<br/></p>
         <ul>
-            <li>La categorie <u>Mon compte</u> permet de gerer son compte Tux-FreeHost en reglant tout ce qui est informations personnelles, mot de passe du compte et paiements.</li>
-            <li>La categorie <u>Hebergement web</u> permet de gerer son compte d'hebergement en reglant ses vhosts et ses bases de donnees.</li>
-            <li>La categorie <u>Mail</u> permet de gerer ses comptes mails, ses listes de diffusions et d'acceder au webmail</li>
-            <li>La categorie <u>Support</u> permet de contacter le support sous la forme de tickets pour tout probleme que vous n'arrivez pas a resoudre par vous-meme.</li>
+            <li>The <u>Maiboxes</u> section allows you to create an email account at your domain so that you can receive email from customers or other visitors to your domain.</li>
+            <li>The <u>Domains</u> section allows you to manage yours linked domains and subdomains.</li>
+            <li>The <u>Vhosts</u> section allows you to link a existing domain to a folder in your home directory.</li>
+            <li>The <u>My account</u> section allows you to manage your Tux-FreeHost account and configure your personal informations, password and bills.</li>
+            <li>The <u>Support</u> section allows you to contact the support with tickets for problemes you couldn't manage by yourself.</li>
         </ul>
     </div>
 </div>
-

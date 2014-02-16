@@ -8,6 +8,7 @@ read [the blog](http://tux-fh.net/posts.html), write in
 
 To install the panel
 --------------------
+Manually :
 ```bash
 PATH="~/.local/bin/:$PATH" # If it's not already done yet
 python3 setup.py install
@@ -18,4 +19,4 @@ python3 tfh.py -c development.ini initdb
 # Start the web application
 pserve development.ini
 ```
-
+Or with a little script by Edelwin : https://gist.github.com/Edelwin/7857978
