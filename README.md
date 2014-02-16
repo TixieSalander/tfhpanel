@@ -19,6 +19,5 @@ python3 tfh.py -c development.ini initdb
 # Start the web application
 pserve development.ini
 ```
-Moreover, you can use the installation/management [scripts](https://gist.github.com/Edelwin/7857978).
-Or with a little [script](https://gist.github.com/Edelwin/7857978) (python3) or [another
+Moreover, you can use the installation/management [scripts](https://gist.github.com/Edelwin/7857978)(python3) or [another
 one](https://gist.github.com/NyanKiyoshi/9028494) (python2) 
