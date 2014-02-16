@@ -27,6 +27,10 @@ def home(request):
 
 @view_config(route_name='user_login', renderer='user/login.mako')
 def user_login(request):
+    # if user is already logged
+    if request.user:
+        return HTTPSeeOther(location=request.route_url('user_home'))
+
     _ = request.translate
     pgp = 'pgp' in request.GET and request.GET['pgp']
     if request.method == 'POST':
@@ -93,3 +97,4 @@ def user_settings(request):
             request.session.flash(('info', _('Saved!')))
     return dict(form=form, object=object)
 
+    
