@@ -374,9 +374,10 @@ body#loginform{
     color: #3a3a3a;
 }
 .loginform .form textarea{
-    height: 10em;
+    min-height: 10em;
     margin-top: 5px;
     font-size: 0.9em;
+    resize: vertical;
 }
 .loginform .form input[type=submit]{
     width: 300px;
