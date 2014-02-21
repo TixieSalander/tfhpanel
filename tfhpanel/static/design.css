@@ -373,6 +373,11 @@ body#loginform{
 .loginform .form input[type=password]:focus{
     color: #3a3a3a;
 }
+.loginform .form textarea{
+    height: 10em;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
 .loginform .form input[type=submit]{
     width: 300px;
     padding: 10px 0;
