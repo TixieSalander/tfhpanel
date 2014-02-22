@@ -415,7 +415,6 @@ code {
 
 /* Messages */
 .message {
-    border: 1px solid black;
     padding: 5px;
     margin: 10px 0 10px 0;
     text-align: center;
@@ -424,21 +423,16 @@ code {
     padding: 10px;
     margin: 0 0 20px 0;
     text-align: center;
-    text-shadow: 0px 1px 0px rgb(255, 255, 255);
 }
 .m-info {
     color: rgb(58, 135, 173);
     background-color: rgb(217, 237, 247);
-    border: 1px solid rgb(188, 232, 241);
     border-radius: 4px;
-    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.4) inset;
 }
 .m-error { 
     color: rgb(185, 74, 72);
     background-color: rgb(242, 222, 222);
-    border: 1px solid rgba(10, 20, 20, 0.1);
-    box-shadow: 0px 1px 0px rgba(255, 255, 255, 0.4) inset;
-    text-shadow: 0px 1px 0px rgb(255, 255, 255);
+    border-radius: 4px;
 }
 
 .panel-value {
