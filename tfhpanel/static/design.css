@@ -60,20 +60,20 @@ header nav a:hover, header nav a.current{
     opacity: 1;
 }
 header nav a.navlogout{
-    background: #d42222;
+    border-left: 1px solid #ccc;
     opacity: 1;
 }
 header nav a.navlogout:hover{
-    background: #c72a2a;
+
 }
 header nav img{
     height: 30px;
     width: 30px;
 }
 header nav a.navlogout img{
-    height: 40px;
-    width: 40px;
-    margin: 0.15em 0;
+    height: 35px;
+    width: 35px;
+    margin: 0.32em 0;
 }
 .wrap{
     display: table;
