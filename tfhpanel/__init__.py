@@ -2,6 +2,8 @@ from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 from pyramid_beaker import session_factory_from_settings
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.view import notfound_view_config, view_config
 from tfhpanel.models import (
     RootFactory, traversal_view, PanelView, link_panels,
     Base, DBSession,
@@ -10,6 +12,16 @@ from tfhpanel.security import (
     AuthenticationPolicy, 
     get_user, get_principals, req_has_permission,
 )
+
+def add_auto_route(config, name, pattern, **kw):
+    config.add_route(name, pattern, **kw)
+    
+    if not pattern.endswith('/'):
+        config.add_route(name + '_', pattern + '/')
+        def redirector(request):
+            return HTTPMovedPermanently(request.route_url(name,_query=request.GET,**request.matchdict))
+        config.add_view(redirector, route_name=name + '_')
+
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -34,16 +46,22 @@ def main(global_config, **settings):
                           'pyramid.events.NewRequest')
     
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_route('home',            '/')
-    
-    config.add_route('user_home',       '/user/')
-    config.add_route('user_settings',   '/user/settings')
-    config.add_route('user_login',      '/user/login')
-    config.add_route('user_logout',     '/user/logout')
-    config.add_route('user_signup',     '/user/signup')
-    config.add_route('user_pwreset',    '/user/pwreset')
-    
+
+
+    # URLs ending with slash
+    config.add_route('home',        '/')
+    config.add_route('user_home',   '/user/')
+
+    # URLs ending without slash
+    add_auto_route(config, 'user_settings',   '/user/settings')
+    add_auto_route(config, 'user_logout',     '/user/logout')
+    add_auto_route(config, 'user_signup',     '/user/signup')
+    add_auto_route(config, 'user_pwreset',    '/user/pwreset')
+    add_auto_route(config, 'user_login',      '/user/login')
+
+
     config.add_view(traversal_view, context=PanelView)
+
 
     config.scan()
     link_panels()
