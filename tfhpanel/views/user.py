@@ -78,7 +78,7 @@ def user_home(request):
 class UserSettingsForm(Form):
     username = TextField(_('Username'), immutable=True)
     password = PasswordField(_('Password'))
-    email = TextField(_('E-Mail'), required=False)
+    email = TextField(_('E-Mail'), email=0, required=False)
     pgppk = PGPKeyField(_('OpenPGP public key'), require=PGPKeyField.PUBKEY)
 
 @view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
@@ -97,4 +97,15 @@ def user_settings(request):
             request.session.flash(('info', _('Saved!')))
     return dict(form=form, object=object)
 
-    
+
+class AddUserForm(Form):
+    username = TextField(_('Username'), immutable=True)
+    password = PasswordField(_('Password'))
+    email = TextField(_('E-Mail'), required=False)
+
+@view_config(route_name='adm_add_user', permission='admin', renderer='user/add_user.mako')
+def adm_add_user(request):
+    form = AddUserForm(request, request.route_url('adm_add_user'))
+    object = request.user
+
+    return dict(form=form, object=object)
