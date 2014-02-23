@@ -137,11 +137,17 @@ class TextField(FormField):
         self.min_len = kwargs.get('min_len', 0)
         self.max_len = kwargs.get('max_len', 1 << 20)
         self.regexp = kwargs.get('regexp', None)
+        self.email = kwargs.get('email', 1)
         super(TextField, self).__init__(*args, **kwargs)
+
     def validate(self, in_value):
         if (self.min_len and len(in_value) < self.min_len) \
          or (self.max_len and len(in_value) > self.max_len):
             raise ValidationError('%s -> %s' % (self.min_len, self.max_len) + _(' characters.'))
+        if (self.email==0):
+            regexEmail = '[\.\w]{1,}[@]\w+[.]\w+'
+            if not re.match(regexEmail, in_value):
+                raise ValidationError('Type a valid email!')
         if self.regexp and not re.match(self.regexp, in_value):
             raise ValidationError(None)
             
