@@ -160,22 +160,21 @@ aside li a:hover{
 section{
     display: table-cell;
     width: 80%;
-    padding: 2%;
     font-size: 1em;
     line-height: 1.1em;
-    background: #e6e6e6;
+    background: #fff;
 }
 
  /* CONTENT */
 
 .content {
-    padding-top: 8px;
+    margin-top: 5px;
 }
 .content h2{
     font-size: 2.2em;
     padding: 1em 0;
     padding-left: 0.5em;
-
+    background: #f2f2f2;
 }
 .right50, .left50, .right50 + .left50{
     width: 45.5%;
@@ -183,17 +182,11 @@ section{
 }
 .left50{
     float: left;
-    background-color: rgb(255, 255, 255);
-    border-radius: 4px;
-    border: 9px solid rgba(0, 0, 0, 0.12);
-    padding: 1%;
+    padding: 1% 1% 1% 2%;
 }
 .right50{
     float: right;
-    background-color: rgb(255, 255, 255);
-    border-radius: 4px;
-    border: 9px solid rgba(0, 0, 0, 0.12);
-    padding: 1%;
+    padding: 1% 2% 1% 1%;
 }
 .left50 table, .right50 table{
     background: #fff;
@@ -201,11 +194,7 @@ section{
     border-radius: 3px;
 }
 .width100{
-    background-color: rgb(255, 255, 255);
-    border: 1px solid rgb(227, 232, 237);
-    border-radius: 4px;
-    box-shadow: 0px 0px 0px 9px rgba(0, 0, 0, 0.02);
-    padding: 10px;
+    padding: 2%;
     margin: 9px 0;
 }
 .content caption{
@@ -416,7 +405,7 @@ code {
 /* Messages */
 .message {
     padding: 5px;
-    margin: 10px 0 10px 0;
+    margin: 0 2%;
     text-align: center;
 }
 .loginmessage {
@@ -434,7 +423,14 @@ code {
     background-color: rgb(242, 222, 222);
     border-radius: 4px;
 }
-
+#messages{
+    float: right;
+    margin-top: 2.3em;
+    margin-right: 2%;
+}
+#messages .message{
+    padding: 5px 20%;
+}
 .panel-value {
     font-family: monospace;
 }
