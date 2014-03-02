@@ -498,28 +498,18 @@ section input[type=text], input[type=password], input[type=submit], select {
 }
 section input[type=submit]{
     width: auto;
-    padding: 3px 7px;
     margin: 3px auto;
-    color: #f1f1f1;
-    font-size: 1.2em;
-    font-weight: lighter;
+    padding: 7px 20px;
+    color: #3a3a3a;
+    font-size: 1.4em;
     text-align: center;
-    background: #c72a2a;
+    background-color: #ccc;
+    border: none;
     border-radius: 3px;
-    border: 1px solid #882929;
-    border-bottom: 3px solid #882929;
-    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
-    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2IxMzYzNiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjElIiBzdG9wLWNvbG9yPSIjYzcyYTJhIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iNzIlIiBzdG9wLWNvbG9yPSIjYzcyYTJhIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iOTglIiBzdG9wLWNvbG9yPSIjZDQyMjIyIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2IxMzYzNiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgPC9saW5lYXJHcmFkaWVudD4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
-    background: -moz-linear-gradient(top, #b13636 0%, #c72a2a 1%, #c72a2a 72%, #d42222 98%, #b13636 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b13636), color-stop(1%,#c72a2a), color-stop(72%,#c72a2a), color-stop(98%,#d42222), color-stop(100%,#b13636)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #b13636 0%,#c72a2a 1%,#c72a2a 72%,#d42222 98%,#b13636 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #b13636 0%,#c72a2a 1%,#c72a2a 72%,#d42222 98%,#b13636 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, #b13636 0%,#c72a2a 1%,#c72a2a 72%,#d42222 98%,#b13636 100%); /* IE10+ */
-    background: linear-gradient(to bottom, #b13636 0%,#c72a2a 1%,#c72a2a 72%,#d42222 98%,#b13636 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b13636', endColorstr='#b13636',GradientType=0 ); /* IE6-8 */
 }
 section input[type=submit]:hover{
-    background: #d42222;
+    color: #f1f1f1;
+    background-color: #C72a2a;
     cursor: pointer;
 }
 section input[type=submit]:active{
