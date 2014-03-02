@@ -469,6 +469,7 @@ h1, h2, h3, h4, h5{
 .content textarea:disabled,
 .content select:disabled {
     border: 0px;
+    background:  #5a5a5a;
 }
 
 .clear {
@@ -483,13 +484,13 @@ section input[type=text], input[type=password], textarea, select {
     width: 100%;
     padding: 6px;
     margin-top: 5px;
-    font-size: 14px;
+    font-size: 1.3em;
     line-height: 1.42857;
     color: rgb(85, 85, 85);
     vertical-align: middle;
-    border: 1px solid rgb(204, 204, 204);
+    background: #fff;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
 }
 section input[type=text], input[type=password], input[type=submit], select {
