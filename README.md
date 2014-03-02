@@ -1,13 +1,15 @@
 Tux-FreeHost Panel
 ==================
 
+Documentation
+-------------
 There is no *complete* documentation yet. However,
 you can [follow](https://twitter.com/tuxfreehost) the project on twitter,
 read [the blog](http://tux-fh.net/posts.html), post in
 [the forum](http://forum.tux-fh.net), or come chat with us on #TuxFH @ Freenode.
 
-Installation
---------------------
+Installation and Management
+---------------------------
 You can use the installation/management [scripts](https://gist.github.com/Edelwin/7857978) which uses python3, or the
 [python2 one](https://gist.github.com/NyanKiyoshi/9028494)
 
