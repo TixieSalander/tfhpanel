@@ -78,7 +78,7 @@ def user_home(request):
 class UserSettingsForm(Form):
     username = TextField(_('Username'), immutable=True)
     password = PasswordField(_('Password'))
-    email = TextField(_('E-Mail'), required=False)
+    email = TextField(_('E-Mail'), email=True, required=False)
     pgppk = PGPKeyField(_('OpenPGP public key'), require=PGPKeyField.PUBKEY)
 
 @view_config(route_name='user_settings', permission='user', renderer='user/settings.mako')
@@ -96,5 +96,3 @@ def user_settings(request):
             DBSession.commit()
             request.session.flash(('info', _('Saved!')))
     return dict(form=form, object=object)
-
-    
