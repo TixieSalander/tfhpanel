@@ -339,13 +339,13 @@ body#loginform{
     margin-bottom: 15px;
     text-align: center;
     background: rgb(249, 249, 249);
-    border: 1px solid #ebebeb;
+    border: 1px solid #dcdcdc;
 }
 .loginform .form input[type=text],
 .loginform .form textarea,
 .loginform .form input[type=password]{
     width: 90%;
-    color: #a2a2a2;
+    color: #858585;
     font-size: 1.6em;
     font-weight: lighter;
     line-height: 1;
