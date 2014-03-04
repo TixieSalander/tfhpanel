@@ -339,13 +339,13 @@ body#loginform{
     margin-bottom: 15px;
     text-align: center;
     background: rgb(249, 249, 249);
-    border: 1px solid #ebebeb;
+    border: 1px solid #DCDCDC;
 }
 .loginform .form input[type=text],
 .loginform .form textarea,
 .loginform .form input[type=password]{
     width: 90%;
-    color: #a2a2a2;
+    color: #383838;
     font-size: 1.6em;
     font-weight: lighter;
     line-height: 1;
@@ -353,14 +353,14 @@ body#loginform{
     margin: 0 auto 16px;
     background-color: #fafafa;
     border: 0px;
-    border-bottom: 1px solid #ebebeb;
+    border-bottom: 1px solid #DCDCDC;
     border-radius: 0;
     box-shadow: none;
 }
 .loginform .form input[type=text]:focus,
 .loginform .form textarea:focus,
 .loginform .form input[type=password]:focus{
-    color: #3a3a3a;
+    color: #0d0d0d;
 }
 .loginform .form textarea{
     min-height: 10em;
