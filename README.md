@@ -18,3 +18,7 @@ If you just want to launch the panel, you (really) should activate the virtual e
 bin/pserve development.ini
 ```
 (it implies that you have satisfied all the dependencies)
+
+Project status
+--------------
+The developers is sorely lacking. So if you want to help, there is a todo list [here](https://etherpad.fr/p/tfhtodo).
